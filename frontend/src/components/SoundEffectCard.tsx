@@ -70,7 +70,8 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
 
   return (
     <div
-      className={`relative group flex items-center justify-between gap-2 sm:gap-3 px-2.5 sm:px-3.5 py-2.5 sm:py-3 rounded-lg border transition-colors duration-200 ${
+      onContextMenu={(e) => e.preventDefault()}
+      className={`relative group flex items-center justify-between gap-2 sm:gap-3 px-2.5 sm:px-3.5 py-2.5 sm:py-3 rounded-lg border transition-colors duration-200 select-none ${
         isCurrent
           ? 'bg-[#181818] border-neutral-600'
           : 'bg-[#121212] border-[#1e1e1e] hover:bg-[#161616] hover:border-neutral-700/80'

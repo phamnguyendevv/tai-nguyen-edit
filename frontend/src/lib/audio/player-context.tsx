@@ -69,6 +69,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const pendingSeekRef = useRef<number | null>(null);
   const playPromiseRef = useRef<Promise<void> | null>(null);
+  const blobCacheRef = useRef<Map<string, string>>(new Map());
   const [currentTrack, setCurrentTrack] = useState<SoundEffect | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
@@ -314,6 +315,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       audio.removeEventListener('waiting', handleWaiting);
       audio.removeEventListener('playing', handlePlaying);
       audio.removeEventListener('pause', handlePause);
+      blobCacheRef.current.forEach((url) => URL.revokeObjectURL(url));
+      blobCacheRef.current.clear();
     };
   }, []);
 
@@ -408,9 +411,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       setDuration(track.duration || 0);
       setIsLoading(true);
 
-      audio.src = track.audioUrl;
-      audio.volume = isMuted ? 0 : volume;
-
+      // Clean up previous listeners and set loading
       const applySeekOnReady = () => {
         if (targetTime > 0) {
           const maxDur =
@@ -436,7 +437,31 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       };
       audio.addEventListener('loadedmetadata', handleMeta);
 
-      safePlay();
+      // Load audio stream securely as an in-memory blob to hide real URL from sniffer tools
+      const loadAudioStream = async () => {
+        let streamUrl = blobCacheRef.current.get(track.id);
+        if (!streamUrl) {
+          try {
+            const res = await fetch(track.audioUrl, {
+              headers: {
+                'X-Requested-With': 'SFX-WebPlayer',
+              },
+            });
+            if (res.ok) {
+              const blob = await res.blob();
+              streamUrl = URL.createObjectURL(blob);
+              blobCacheRef.current.set(track.id, streamUrl);
+            }
+          } catch {
+            // fallback
+          }
+        }
+        audio.src = streamUrl || track.audioUrl;
+        audio.volume = isMuted ? 0 : volume;
+        safePlay();
+      };
+
+      loadAudioStream();
     },
     [currentTrack, volume, isMuted, safePlay]
   );
