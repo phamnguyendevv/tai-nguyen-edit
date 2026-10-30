@@ -9,6 +9,7 @@ import React, {
   useCallback,
 } from 'react';
 import { SoundEffect } from '@/types/sfx';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { DownloadLimitModal } from '@/components/DownloadLimitModal';
@@ -83,6 +84,7 @@ interface AudioContextType {
 const AudioContext = createContext<AudioContextType | null>(null);
 
 export function PlayerProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const { isPro } = useAuth();
   const { language } = useLanguage();
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -826,7 +828,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         maxLimit={FREE_DAILY_DOWNLOAD_LIMIT}
         onUpgrade={() => {
           setIsLimitModalOpen(false);
-          setIsCheckoutOpen(true);
+          router.push('/pricing');
         }}
       />
 

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { X } from 'lucide-react';
+import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/language-context';
 
 interface DownloadLimitModalProps {
@@ -9,7 +10,7 @@ interface DownloadLimitModalProps {
   onClose: () => void;
   downloadsCount: number;
   maxLimit: number;
-  onUpgrade: () => void;
+  onUpgrade?: () => void;
 }
 
 export const DownloadLimitModal: React.FC<DownloadLimitModalProps> = ({
@@ -107,13 +108,16 @@ export const DownloadLimitModal: React.FC<DownloadLimitModalProps> = ({
 
           {/* Action buttons */}
           <div className="pt-2 flex flex-col gap-2.5">
-            <button
-              type="button"
-              onClick={onUpgrade}
-              className="w-full py-3 px-4 rounded-lg bg-black hover:bg-neutral-800 active:scale-[0.99] text-white font-medium text-xs sm:text-sm transition-all duration-150 cursor-pointer shadow-sm text-center"
+            <Link
+              href="/pricing"
+              onClick={() => {
+                onClose();
+                if (onUpgrade) onUpgrade();
+              }}
+              className="w-full py-3 px-4 rounded-lg bg-black hover:bg-neutral-800 active:scale-[0.99] text-white font-medium text-xs sm:text-sm transition-all duration-150 cursor-pointer shadow-sm text-center block"
             >
               {isVi ? 'Nâng cấp lên Premium' : 'Upgrade to Premium'}
-            </button>
+            </Link>
 
             <button
               type="button"
