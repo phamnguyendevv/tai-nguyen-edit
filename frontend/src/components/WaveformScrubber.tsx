@@ -20,6 +20,7 @@ export const WaveformScrubber: React.FC<WaveformScrubberProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoverPercent, setHoverPercent] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const hasDraggedRef = useRef(false);
 
   const calculatePercent = useCallback((clientX: number): number => {
     if (!containerRef.current) return 0;
@@ -31,7 +32,6 @@ export const WaveformScrubber: React.FC<WaveformScrubberProps> = ({
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     e.stopPropagation();
-    e.preventDefault();
     if (e.button !== 0) return; // Primary click only
 
     try {
@@ -40,6 +40,7 @@ export const WaveformScrubber: React.FC<WaveformScrubberProps> = ({
       // Ignore if setPointerCapture not supported
     }
 
+    hasDraggedRef.current = false;
     setIsDragging(true);
     const pct = calculatePercent(e.clientX);
     setHoverPercent(pct);
@@ -51,8 +52,8 @@ export const WaveformScrubber: React.FC<WaveformScrubberProps> = ({
     setHoverPercent(pct);
 
     if (isDragging) {
+      hasDraggedRef.current = true;
       e.stopPropagation();
-      e.preventDefault();
       onSeek(pct);
     }
   };
@@ -67,8 +68,12 @@ export const WaveformScrubber: React.FC<WaveformScrubberProps> = ({
         // Ignore
       }
       setIsDragging(false);
-      const pct = calculatePercent(e.clientX);
-      onSeek(pct);
+      // Only call onSeek on pointerUp if the user actually dragged to a new position
+      if (hasDraggedRef.current) {
+        const pct = calculatePercent(e.clientX);
+        onSeek(pct);
+      }
+      hasDraggedRef.current = false;
     }
   };
 

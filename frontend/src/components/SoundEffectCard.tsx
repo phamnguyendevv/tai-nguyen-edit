@@ -46,14 +46,16 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
     if (optimisticSeek !== null) {
       if (!isCurrent) {
         setOptimisticSeek(null);
-      } else if (Math.abs(progressPercent - optimisticSeek) < 0.08 || !isPlaying) {
+      } else if (Math.abs(progressPercent - optimisticSeek) < 0.04) {
+        setOptimisticSeek(null);
+      } else {
         const timer = setTimeout(() => {
           setOptimisticSeek(null);
-        }, 150);
+        }, 600);
         return () => clearTimeout(timer);
       }
     }
-  }, [optimisticSeek, isCurrent, progressPercent, isPlaying]);
+  }, [optimisticSeek, isCurrent, progressPercent]);
 
   const activeProgress = optimisticSeek !== null ? optimisticSeek : progressPercent;
   const activeElapsed = optimisticSeek !== null ? optimisticSeek * currentDuration : currentElapsed;
@@ -88,7 +90,11 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
       </button>
 
       {/* Title & Duration & Mini Audio Bars */}
-      <div className="flex flex-col min-w-[80px] sm:min-w-[130px] max-w-[110px] sm:max-w-[175px] truncate">
+      <div
+        onClick={() => togglePlay(soundEffect)}
+        className="flex flex-col min-w-[80px] sm:min-w-[130px] max-w-[110px] sm:max-w-[175px] truncate cursor-pointer select-none"
+        title={isThisPlaying ? `Pause ${soundEffect.title}` : `Play ${soundEffect.title}`}
+      >
         <div className="flex items-center gap-1.5 truncate">
           <span
             className={`text-xs sm:text-sm font-medium truncate transition-colors duration-200 ${

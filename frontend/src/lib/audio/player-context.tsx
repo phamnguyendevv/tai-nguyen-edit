@@ -55,6 +55,7 @@ const AudioContext = createContext<AudioContextType | null>(null);
 export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const pendingSeekRef = useRef<number | null>(null);
+  const playPromiseRef = useRef<Promise<void> | null>(null);
   const [currentTrack, setCurrentTrack] = useState<SoundEffect | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
@@ -270,9 +271,17 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       setIsPlaying(false);
     };
 
+    const handleSeeked = () => {
+      pendingSeekRef.current = null;
+      if (audioRef.current) {
+        setCurrentTime(audioRef.current.currentTime);
+      }
+    };
+
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('canplay', handleCanPlay);
+    audio.addEventListener('seeked', handleSeeked);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
     audio.addEventListener('waiting', handleWaiting);
@@ -284,6 +293,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('canplay', handleCanPlay);
+      audio.removeEventListener('seeked', handleSeeked);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
       audio.removeEventListener('waiting', handleWaiting);
@@ -323,6 +333,33 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     };
   }, [isPlaying]);
 
+  const safePlay = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (!audio.paused && audio.currentTime > 0) {
+      setIsPlaying(true);
+      return;
+    }
+
+    const p = audio.play();
+    if (p !== undefined) {
+      playPromiseRef.current = p;
+      p.then(() => {
+        setIsPlaying(true);
+        setIsLoading(false);
+        setError(null);
+      }).catch((err) => {
+        // AbortError is normal when switching tracks or rapid seeks occur
+        if (err.name === 'AbortError') return;
+        console.error('Audio playback error:', err);
+        setIsPlaying(false);
+        setIsLoading(false);
+        setError('Could not play audio track. User gesture may be required.');
+      });
+    }
+  }, []);
+
   const playTrack = useCallback(
     (track: SoundEffect, startTime?: number) => {
       const audio = audioRef.current;
@@ -340,14 +377,12 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
               ? audio.duration
               : track.duration;
           const clamped = Math.max(0, Math.min(targetTime, maxDur));
-          audio.currentTime = clamped;
+          try {
+            audio.currentTime = clamped;
+          } catch {}
           setCurrentTime(clamped);
         }
-        audio.play().catch((err) => {
-          console.error('Playback error:', err);
-          setError('Browser blocked audio autoplay or failed to decode.');
-          setIsPlaying(false);
-        });
+        safePlay();
         return;
       }
 
@@ -386,22 +421,9 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       };
       audio.addEventListener('loadedmetadata', handleMeta);
 
-      audio
-        .play()
-        .then(() => {
-          applySeekOnReady();
-          setIsPlaying(true);
-          setIsLoading(false);
-        })
-        .catch((err) => {
-          console.error('Audio playback error:', err);
-          pendingSeekRef.current = null;
-          setIsLoading(false);
-          setIsPlaying(false);
-          setError('Could not play audio track. User gesture may be required.');
-        });
+      safePlay();
     },
-    [currentTrack, volume, isMuted]
+    [currentTrack, volume, isMuted, safePlay]
   );
 
   const pauseTrack = useCallback(() => {
@@ -415,11 +437,9 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const resumeTrack = useCallback(() => {
     const audio = audioRef.current;
     if (audio && currentTrack) {
-      audio.play().catch(() => {
-        setIsPlaying(false);
-      });
+      safePlay();
     }
-  }, [currentTrack]);
+  }, [currentTrack, safePlay]);
 
   const togglePlay = useCallback(
     (track: SoundEffect) => {
@@ -441,7 +461,9 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
             ? audio.duration
             : duration || currentTrack.duration;
         const clamped = Math.max(0, Math.min(seconds, effectiveDur));
-        audio.currentTime = clamped;
+        try {
+          audio.currentTime = clamped;
+        } catch {}
         setCurrentTime(clamped);
       }
     },
@@ -463,17 +485,24 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
             ? audio.duration
             : duration || trackDur;
         const actualTarget = Math.max(0, Math.min(effectiveDur, clampedPercent * effectiveDur));
-        audio.currentTime = actualTarget;
-        setCurrentTime(actualTarget);
-        if (!isPlaying) {
-          audio.play().then(() => setIsPlaying(true)).catch(console.error);
+
+        try {
+          if (audio.readyState >= 1) {
+            audio.currentTime = actualTarget;
+          } else {
+            pendingSeekRef.current = actualTarget;
+          }
+        } catch {
+          pendingSeekRef.current = actualTarget;
         }
+        setCurrentTime(actualTarget);
+        safePlay();
       } else {
         // Track is not playing yet: switch to it and immediately start at targetTime!
         playTrack(track, targetTime);
       }
     },
-    [currentTrack, duration, isPlaying, playTrack]
+    [currentTrack, duration, playTrack, safePlay]
   );
 
   const seekToPercent = useCallback(
