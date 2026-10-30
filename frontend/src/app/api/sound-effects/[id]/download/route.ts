@@ -54,14 +54,15 @@ async function handleDownload(context: { params: Promise<{ id: string }> }) {
     }
 
     const fileBuffer = fs.readFileSync(/*turbopackIgnore: true*/ foundPath);
+    const uint8 = new Uint8Array(fileBuffer);
     const filename = `${item.slug || item.id}.wav`;
 
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(uint8, {
       status: 200,
       headers: {
         'Content-Type': 'audio/wav',
         'Content-Disposition': `attachment; filename="${filename}"`,
-        'Content-Length': fileBuffer.length.toString(),
+        'Content-Length': uint8.byteLength.toString(),
         'Cache-Control': 'no-store, no-cache, must-revalidate',
       },
     });
