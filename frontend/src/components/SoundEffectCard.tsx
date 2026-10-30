@@ -150,9 +150,9 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
             downloads.includes(soundEffect.id)
               ? `Tải lại ${soundEffect.title} (Đã tải)`
               : isDownloadLimitReached
-              ? `Đã đạt giới hạn 5 lượt tải miễn phí - Bấm để nâng cấp Pro`
+              ? `Đã đạt giới hạn 5 lượt tải hôm nay - Làm mới sau 00:00 (Bấm để nâng cấp Pro)`
               : remainingDownloads !== Infinity
-              ? `Tải ${soundEffect.title} (Còn ${remainingDownloads}/5 lượt miễn phí)`
+              ? `Tải ${soundEffect.title} (Còn ${remainingDownloads}/5 lượt hôm nay)`
               : `Tải ${soundEffect.title} (WAV)`
           }
           aria-label={`Download ${soundEffect.title}`}

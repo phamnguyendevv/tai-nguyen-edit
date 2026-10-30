@@ -14,7 +14,21 @@ import { DownloadLimitModal } from '@/components/DownloadLimitModal';
 import { CheckoutModal } from '@/components/CheckoutModal';
 import { PRICING_PLANS } from '@/components/PricingSection';
 
+export const FREE_DAILY_DOWNLOAD_LIMIT = 5;
 export const FREE_DOWNLOAD_LIMIT = 5;
+
+export function getTodayDateString(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export interface DailyDownloadQuota {
+  date: string; // YYYY-MM-DD in local time
+  soundIds: string[]; // Sound effect IDs downloaded today
+}
 
 export interface UserCollection {
   id: string;
@@ -54,6 +68,8 @@ interface AudioContextType {
   downloadTrack: (track: SoundEffect) => Promise<void>;
   clearDownloads: () => void;
   downloadToast: string | null;
+  dailyDownloads: string[];
+  dailyDownloadsCount: number;
   freeDownloadLimit: number;
   remainingDownloads: number;
   isDownloadLimitReached: boolean;
@@ -80,12 +96,13 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [downloads, setDownloads] = useState<string[]>([]);
+  const [dailyDownloads, setDailyDownloads] = useState<string[]>([]);
   const [collections, setCollections] = useState<UserCollection[]>([]);
   const [downloadToast, setDownloadToast] = useState<string | null>(null);
   const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  // Initialize favorites, downloads and collections from localStorage on client
+  // Initialize favorites, downloads, daily quota, and collections from localStorage on client
   useEffect(() => {
     try {
       const storedFav = localStorage.getItem('sfx_favorites');
@@ -96,6 +113,32 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       if (storedDown) {
         setDownloads(JSON.parse(storedDown));
       }
+
+      // Initialize daily download quota
+      const today = getTodayDateString();
+      const storedDaily = localStorage.getItem('sfx_daily_downloads');
+      if (storedDaily) {
+        try {
+          const parsed: DailyDownloadQuota = JSON.parse(storedDaily);
+          if (parsed && parsed.date === today && Array.isArray(parsed.soundIds)) {
+            setDailyDownloads(parsed.soundIds);
+          } else {
+            // New day: reset today's quota
+            const freshQuota: DailyDownloadQuota = { date: today, soundIds: [] };
+            localStorage.setItem('sfx_daily_downloads', JSON.stringify(freshQuota));
+            setDailyDownloads([]);
+          }
+        } catch {
+          const freshQuota: DailyDownloadQuota = { date: today, soundIds: [] };
+          localStorage.setItem('sfx_daily_downloads', JSON.stringify(freshQuota));
+          setDailyDownloads([]);
+        }
+      } else {
+        const freshQuota: DailyDownloadQuota = { date: today, soundIds: [] };
+        localStorage.setItem('sfx_daily_downloads', JSON.stringify(freshQuota));
+        setDailyDownloads([]);
+      }
+
       const storedCols = localStorage.getItem('sfx_user_collections');
       if (storedCols) {
         setCollections(JSON.parse(storedCols));
@@ -112,6 +155,31 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       console.warn('Could not read user data from localStorage', e);
     }
+  }, []);
+
+  // Automatically reset daily quota after midnight (00:00) when tab is active or focused
+  useEffect(() => {
+    const checkDayReset = () => {
+      const today = getTodayDateString();
+      try {
+        const stored = localStorage.getItem('sfx_daily_downloads');
+        if (stored) {
+          const parsed: DailyDownloadQuota = JSON.parse(stored);
+          if (parsed && parsed.date !== today) {
+            const freshQuota: DailyDownloadQuota = { date: today, soundIds: [] };
+            localStorage.setItem('sfx_daily_downloads', JSON.stringify(freshQuota));
+            setDailyDownloads([]);
+          }
+        }
+      } catch {}
+    };
+
+    window.addEventListener('focus', checkDayReset);
+    const interval = setInterval(checkDayReset, 30000); // Check every 30 seconds
+    return () => {
+      window.removeEventListener('focus', checkDayReset);
+      clearInterval(interval);
+    };
   }, []);
 
   const addToCollection = useCallback((collectionId: string, soundId: string) => {
@@ -577,19 +645,39 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
   const downloadTrack = useCallback(
     async (track: SoundEffect) => {
-      const alreadyDownloaded = downloads.includes(track.id);
-      const isLimitReached = !isPro && downloads.length >= FREE_DOWNLOAD_LIMIT && !alreadyDownloaded;
+      const today = getTodayDateString();
 
-      if (isLimitReached) {
+      // Read fresh daily quota from localStorage to avoid stale closure state
+      let currentDailyList = dailyDownloads;
+      try {
+        const stored = localStorage.getItem('sfx_daily_downloads');
+        if (stored) {
+          const parsed: DailyDownloadQuota = JSON.parse(stored);
+          if (parsed && parsed.date === today && Array.isArray(parsed.soundIds)) {
+            currentDailyList = parsed.soundIds;
+          } else {
+            currentDailyList = [];
+          }
+        }
+      } catch {}
+
+      const alreadyDownloadedToday = currentDailyList.includes(track.id);
+      const isDailyLimitReached =
+        !isPro && currentDailyList.length >= FREE_DAILY_DOWNLOAD_LIMIT && !alreadyDownloadedToday;
+
+      if (isDailyLimitReached) {
         setIsLimitModalOpen(true);
-        setDownloadToast(`Đã đạt giới hạn 5 lượt tải miễn phí. Vui lòng nâng cấp Pro để tải không giới hạn!`);
+        setDownloadToast(
+          `Hôm nay bạn đã dùng hết 5/5 lượt tải miễn phí. Lượt tải sẽ tự động làm mới sau 00:00!`
+        );
         setTimeout(() => {
           setDownloadToast(null);
-        }, 4000);
+        }, 4500);
         return;
       }
 
       try {
+        // 1. Update full download history (for My Downloads page)
         const nextDownloads = [track.id, ...downloads.filter((id) => id !== track.id)];
         setDownloads(nextDownloads);
         try {
@@ -598,7 +686,20 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
           console.warn('Could not save downloads to localStorage', e);
         }
 
-        // Trigger native browser download directly via the official attachment endpoint
+        // 2. Update today's download quota (if not already downloaded today)
+        let nextDailyList = currentDailyList;
+        if (!alreadyDownloadedToday) {
+          nextDailyList = [track.id, ...currentDailyList.filter((id) => id !== track.id)];
+          setDailyDownloads(nextDailyList);
+          try {
+            const quota: DailyDownloadQuota = { date: today, soundIds: nextDailyList };
+            localStorage.setItem('sfx_daily_downloads', JSON.stringify(quota));
+          } catch (e) {
+            console.warn('Could not save daily downloads to localStorage', e);
+          }
+        }
+
+        // 3. Trigger native browser download directly via the official attachment endpoint
         const downloadUrl = `/api/sound-effects/${track.id}/download`;
         const link = document.createElement('a');
         link.href = downloadUrl;
@@ -616,9 +717,11 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         if (isPro) {
           setDownloadToast(`Đã tải: ${track.title} (Gói Pro - Không giới hạn)`);
         } else {
-          const remaining = Math.max(0, FREE_DOWNLOAD_LIMIT - nextDownloads.length);
+          const remainingToday = Math.max(0, FREE_DAILY_DOWNLOAD_LIMIT - nextDailyList.length);
           setDownloadToast(
-            `Đã tải: ${track.title} (Còn lại ${remaining}/${FREE_DOWNLOAD_LIMIT} lượt tải miễn phí)`
+            alreadyDownloadedToday
+              ? `Đã tải lại: ${track.title} (Không tính thêm lượt tải hôm nay)`
+              : `Đã tải: ${track.title} (Còn lại ${remainingToday}/${FREE_DAILY_DOWNLOAD_LIMIT} lượt hôm nay)`
           );
         }
         setTimeout(() => {
@@ -632,11 +735,13 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         }, 3500);
       }
     },
-    [downloads, isPro]
+    [dailyDownloads, downloads, isPro]
   );
 
-  const remainingDownloads = isPro ? Infinity : Math.max(0, FREE_DOWNLOAD_LIMIT - downloads.length);
-  const isDownloadLimitReached = !isPro && downloads.length >= FREE_DOWNLOAD_LIMIT;
+  const remainingDownloads = isPro
+    ? Infinity
+    : Math.max(0, FREE_DAILY_DOWNLOAD_LIMIT - dailyDownloads.length);
+  const isDownloadLimitReached = !isPro && dailyDownloads.length >= FREE_DAILY_DOWNLOAD_LIMIT;
 
   return (
     <AudioContext.Provider
@@ -651,6 +756,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         error,
         favorites,
         downloads,
+        dailyDownloads,
+        dailyDownloadsCount: dailyDownloads.length,
         collections,
         addToCollection,
         removeFromCollection,
@@ -671,7 +778,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         downloadTrack,
         clearDownloads,
         downloadToast,
-        freeDownloadLimit: FREE_DOWNLOAD_LIMIT,
+        freeDownloadLimit: FREE_DAILY_DOWNLOAD_LIMIT,
         remainingDownloads,
         isDownloadLimitReached,
         isLimitModalOpen,
@@ -681,12 +788,12 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     >
       {children}
 
-      {/* Free Download Limit Modal */}
+      {/* Free Daily Download Limit Modal */}
       <DownloadLimitModal
         isOpen={isLimitModalOpen}
         onClose={() => setIsLimitModalOpen(false)}
-        downloadsCount={downloads.length}
-        maxLimit={FREE_DOWNLOAD_LIMIT}
+        downloadsCount={dailyDownloads.length}
+        maxLimit={FREE_DAILY_DOWNLOAD_LIMIT}
         onUpgrade={() => {
           setIsLimitModalOpen(false);
           setIsCheckoutOpen(true);

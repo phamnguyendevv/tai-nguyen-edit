@@ -44,10 +44,10 @@ export const DownloadLimitModal: React.FC<DownloadLimitModalProps> = ({
           </div>
           <div>
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30">
-              <Sparkles className="w-3 h-3" /> Giới hạn miễn phí
+              <Sparkles className="w-3 h-3" /> Hạn mức 5 lượt / ngày
             </span>
             <h3 className="text-lg sm:text-xl font-bold text-white mt-1">
-              Đã đạt giới hạn 5 lượt tải
+              Đã hết 5 lượt tải hôm nay
             </h3>
           </div>
         </div>
@@ -55,7 +55,7 @@ export const DownloadLimitModal: React.FC<DownloadLimitModalProps> = ({
         {/* Usage Progress Bar */}
         <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3.5 mb-5">
           <div className="flex items-center justify-between text-xs font-medium text-neutral-300 mb-2">
-            <span>Lượt tải đã sử dụng</span>
+            <span>Lượt tải hôm nay đã sử dụng</span>
             <span className="text-amber-400 font-bold">
               {downloadsCount} / {maxLimit} bài (100%)
             </span>
@@ -64,7 +64,7 @@ export const DownloadLimitModal: React.FC<DownloadLimitModalProps> = ({
             <div className="h-full bg-gradient-to-r from-amber-500 to-red-500 rounded-full w-full" />
           </div>
           <p className="text-[11px] text-neutral-400 mt-2">
-            Tài khoản chưa đăng ký gói được tải tối đa {maxLimit} hiệu ứng âm thanh miễn phí.
+            Tài khoản miễn phí được tải tối đa <strong>{maxLimit} sound effect mỗi ngày</strong>. Lượt tải sẽ tự động làm mới sau <strong>00:00</strong> đêm nay, hoặc bạn có thể nâng cấp gói <strong>Pro</strong> để tải không giới hạn ngay lập tức!
           </p>
         </div>
 

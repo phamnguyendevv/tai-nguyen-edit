@@ -13,7 +13,14 @@ import { Download, Trash2, ArrowLeft, Search, Music, Crown, Sparkles } from 'luc
 
 export default function DownloadsPage() {
   const { isPro } = useAuth();
-  const { downloads, clearDownloads, isDownloadLimitReached, openLimitModal } = useAudio();
+  const {
+    downloads,
+    dailyDownloadsCount,
+    remainingDownloads,
+    clearDownloads,
+    isDownloadLimitReached,
+    openLimitModal,
+  } = useAudio();
   const [filterQuery, setFilterQuery] = useState('');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
@@ -87,7 +94,7 @@ export default function DownloadsPage() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs sm:text-sm font-bold text-white">Hạn mức tải gói miễn phí</span>
+                  <span className="text-xs sm:text-sm font-bold text-white">Hạn mức tải hôm nay (Free)</span>
                   <span
                     className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
                       isDownloadLimitReached
@@ -95,13 +102,13 @@ export default function DownloadsPage() {
                         : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
                     }`}
                   >
-                    {downloads.length} / 5 bài ({Math.min(100, Math.round((downloads.length / 5) * 100))}%)
+                    {dailyDownloadsCount} / 5 bài hôm nay ({Math.min(100, Math.round((dailyDownloadsCount / 5) * 100))}%)
                   </span>
                 </div>
                 <p className="text-[11px] sm:text-xs text-neutral-400 mt-1">
                   {isDownloadLimitReached
-                    ? 'Bạn đã đạt giới hạn 5 lượt tải miễn phí. Hãy đăng ký gói thành viên để tải không giới hạn.'
-                    : `Bạn còn ${Math.max(0, 5 - downloads.length)} lượt tải miễn phí nữa trước khi cần nâng cấp.`}
+                    ? 'Bạn đã đạt giới hạn 5 lượt tải miễn phí hôm nay. Lượt tải sẽ tự động làm mới sau 00:00 đêm nay (hoặc nâng cấp Pro để tải không giới hạn).'
+                    : `Bạn còn ${remainingDownloads} lượt tải miễn phí trong ngày hôm nay (tự động làm mới 5 lượt sau 00:00).`}
                 </p>
               </div>
             </div>
