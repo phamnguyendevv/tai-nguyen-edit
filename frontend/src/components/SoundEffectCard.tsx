@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Play, Pause, Download, Loader2 } from 'lucide-react';
 import { SoundEffect } from '@/types/sfx';
 import { useAudio } from '@/lib/audio/player-context';
+import { useLanguage } from '@/lib/i18n/language-context';
 import { WaveformScrubber } from './WaveformScrubber';
 import { AddToCollectionPopover } from './AddToCollectionPopover';
 
@@ -24,7 +25,10 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
     downloads,
     isDownloadLimitReached,
     remainingDownloads,
+    openLimitModal,
   } = useAudio();
+  const { language } = useLanguage();
+  const isVi = language === 'vi';
 
   const [optimisticSeek, setOptimisticSeek] = useState<number | null>(null);
 
@@ -140,22 +144,32 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
         {/* Download button */}
         <button
           type="button"
-          onClick={() => downloadTrack(soundEffect)}
+          onClick={() => {
+            if (isDownloadLimitReached) {
+              openLimitModal();
+              return;
+            }
+            downloadTrack(soundEffect);
+          }}
           className={`p-1 sm:p-1.5 rounded-md transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
-            isDownloadLimitReached && !downloads.includes(soundEffect.id)
+            isDownloadLimitReached
               ? 'text-amber-400 hover:text-amber-300 hover:bg-amber-400/10'
               : 'text-red-400 hover:text-red-300 hover:bg-white/5'
           }`}
           title={
-            downloads.includes(soundEffect.id)
-              ? `Tải lại ${soundEffect.title} (Đã tải)`
-              : isDownloadLimitReached
-              ? `Đã đạt giới hạn 5 lượt tải hôm nay - Làm mới sau 00:00 (Bấm để nâng cấp Pro)`
+            isDownloadLimitReached
+              ? isVi
+                ? 'Đã đạt giới hạn 5 lượt tải hôm nay - Bấm để nâng cấp Pro'
+                : 'Daily limit of 5 downloads reached - Click to upgrade Pro'
               : remainingDownloads !== Infinity
-              ? `Tải ${soundEffect.title} (Còn ${remainingDownloads}/5 lượt hôm nay)`
-              : `Tải ${soundEffect.title} (WAV)`
+              ? isVi
+                ? `Tải ${soundEffect.title} (Còn ${remainingDownloads}/5 lượt hôm nay)`
+                : `Download ${soundEffect.title} (${remainingDownloads}/5 left today)`
+              : isVi
+              ? `Tải ${soundEffect.title} (WAV)`
+              : `Download ${soundEffect.title} (WAV)`
           }
-          aria-label={`Download ${soundEffect.title}`}
+          aria-label={isVi ? `Tải ${soundEffect.title}` : `Download ${soundEffect.title}`}
         >
           <Download className="w-4 h-4" />
         </button>

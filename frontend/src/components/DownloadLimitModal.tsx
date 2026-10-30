@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { X } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface DownloadLimitModalProps {
   isOpen: boolean;
@@ -18,6 +19,9 @@ export const DownloadLimitModal: React.FC<DownloadLimitModalProps> = ({
   maxLimit = 5,
   onUpgrade,
 }) => {
+  const { language } = useLanguage();
+  const isVi = language === 'vi';
+
   if (!isOpen) return null;
 
   return (
@@ -31,7 +35,7 @@ export const DownloadLimitModal: React.FC<DownloadLimitModalProps> = ({
           type="button"
           onClick={onClose}
           className="absolute top-3.5 right-3.5 p-1.5 text-neutral-400 hover:text-neutral-800 rounded-full hover:bg-neutral-100 transition-colors z-20 cursor-pointer"
-          aria-label="Close"
+          aria-label={isVi ? 'Đóng' : 'Close'}
         >
           <X className="w-5 h-5" />
         </button>
@@ -51,36 +55,52 @@ export const DownloadLimitModal: React.FC<DownloadLimitModalProps> = ({
           <div>
             {/* Top plan category */}
             <span className="inline-block text-[11px] sm:text-xs font-semibold text-blue-600 tracking-wider uppercase mb-1.5">
-              PREMIUM PLAN
+              {isVi ? 'GÓI PREMIUM' : 'PREMIUM PLAN'}
             </span>
 
             {/* Main title */}
             <h2 className="text-xl sm:text-[22px] font-bold text-neutral-900 tracking-tight leading-snug mb-2.5">
-              Keep downloading sound effects
+              {isVi ? 'Tiếp tục tải hiệu ứng âm thanh' : 'Keep downloading sound effects'}
             </h2>
 
             {/* Description note with user's daily limit */}
             <p className="text-xs sm:text-[13px] text-neutral-600 leading-relaxed mb-5">
-              You&apos;ve reached your daily limit of {maxLimit} downloads as a free user.
+              {isVi
+                ? `Bạn đã đạt giới hạn ${maxLimit} lượt tải hôm nay với tài khoản miễn phí.`
+                : `You've reached your daily limit of ${maxLimit} downloads as a free user.`}
             </p>
 
             {/* Feature list with bullets matching Image 1 */}
             <ul className="space-y-2.5 text-xs sm:text-[13px] text-neutral-800 font-normal mb-6 pl-1">
               <li className="flex items-center gap-2.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-neutral-900 flex-shrink-0" />
-                <span>Unlimited sound effect downloads</span>
+                <span>
+                  {isVi
+                    ? 'Tải không giới hạn hiệu ứng âm thanh'
+                    : 'Unlimited sound effect downloads'}
+                </span>
               </li>
               <li className="flex items-center gap-2.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-neutral-900 flex-shrink-0" />
-                <span>Access to premium sound effects</span>
+                <span>
+                  {isVi
+                    ? 'Truy cập kho sound effect cao cấp độc quyền'
+                    : 'Access to premium sound effects'}
+                </span>
               </li>
               <li className="flex items-center gap-2.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-neutral-900 flex-shrink-0" />
-                <span>Commercial usage rights</span>
+                <span>
+                  {isVi
+                    ? 'Quyền sử dụng thương mại đầy đủ'
+                    : 'Commercial usage rights'}
+                </span>
               </li>
               <li className="flex items-center gap-2.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-neutral-900 flex-shrink-0" />
-                <span>Priority support</span>
+                <span>
+                  {isVi ? 'Hỗ trợ kỹ thuật ưu tiên' : 'Priority support'}
+                </span>
               </li>
             </ul>
           </div>
@@ -92,7 +112,7 @@ export const DownloadLimitModal: React.FC<DownloadLimitModalProps> = ({
               onClick={onUpgrade}
               className="w-full py-3 px-4 rounded-lg bg-black hover:bg-neutral-800 active:scale-[0.99] text-white font-medium text-xs sm:text-sm transition-all duration-150 cursor-pointer shadow-sm text-center"
             >
-              Upgrade to Premium
+              {isVi ? 'Nâng cấp lên Premium' : 'Upgrade to Premium'}
             </button>
 
             <button
@@ -100,7 +120,7 @@ export const DownloadLimitModal: React.FC<DownloadLimitModalProps> = ({
               onClick={onClose}
               className="w-full py-1 text-xs sm:text-[13px] font-medium text-neutral-600 hover:text-neutral-900 transition-colors cursor-pointer text-center"
             >
-              Maybe later
+              {isVi ? 'Để sau' : 'Maybe later'}
             </button>
           </div>
         </div>
