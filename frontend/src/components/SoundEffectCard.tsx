@@ -67,10 +67,10 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
 
   return (
     <div
-      className={`relative group flex items-center justify-between gap-2 sm:gap-3 px-2.5 sm:px-3.5 py-2.5 sm:py-3 rounded-lg border transition-all duration-300 ease-out ${
+      className={`relative group flex items-center justify-between gap-2 sm:gap-3 px-2.5 sm:px-3.5 py-2.5 sm:py-3 rounded-lg border transition-colors duration-200 ${
         isCurrent
-          ? 'bg-[#181818] border-neutral-600/90 shadow-[0_4px_24px_rgba(0,0,0,0.6),0_0_15px_rgba(255,255,255,0.06)] ring-1 ring-white/10'
-          : 'bg-[#121212] border-[#1e1e1e] hover:bg-[#161616] hover:border-neutral-700/80 hover:shadow-lg'
+          ? 'bg-[#181818] border-neutral-600'
+          : 'bg-[#121212] border-[#1e1e1e] hover:bg-[#161616] hover:border-neutral-700/80'
       }`}
     >
       {/* Left: Play/Pause button with smooth micro-interactions */}

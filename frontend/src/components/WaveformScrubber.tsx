@@ -115,8 +115,6 @@ export const WaveformScrubber: React.FC<WaveformScrubberProps> = ({
         // Center position of this bar bucket
         const barCenter = (index + 0.5) / barCount;
         const isPassed = effectiveProgress > 0 && barCenter <= effectiveProgress;
-        const distanceToPlayhead = Math.abs(barCenter - playheadPercent);
-        const isNearPlayhead = isPlaying && distanceToPlayhead <= (1.2 / barCount);
         const isHovered = hoverPercent !== null && barCenter <= hoverPercent;
 
         // When amplitude is quiet/silence, render as a clean delicate 2px center dot
@@ -132,11 +130,9 @@ export const WaveformScrubber: React.FC<WaveformScrubberProps> = ({
           >
             <div
               style={{ height: `${barHeight}px` }}
-              className={`w-[1.5px] rounded-full transition-all duration-75 ease-out ${
+              className={`w-[1.5px] rounded-full transition-colors duration-75 ease-out ${
                 isPassed
-                  ? isNearPlayhead
-                    ? 'bg-white shadow-[0_0_8px_rgba(255,255,255,1)] scale-y-115'
-                    : 'bg-white shadow-[0_0_2px_rgba(255,255,255,0.7)]'
+                  ? 'bg-white'
                   : isHovered
                   ? 'bg-neutral-200'
                   : isQuiet
@@ -148,14 +144,11 @@ export const WaveformScrubber: React.FC<WaveformScrubberProps> = ({
         );
       })}
 
-      {/* Always-visible sleek DAW-style vertical playhead line cursor */}
+      {/* Always-visible sleek DAW-style vertical playhead line cursor without glow */}
       <div
         className="absolute top-0 bottom-0 w-[1.5px] bg-white pointer-events-none rounded-full -translate-x-1/2 z-10 transition-none"
         style={{
           left: `${playheadPercent * 100}%`,
-          boxShadow: isPlaying
-            ? '0 0 8px rgba(255,255,255,0.9), 0 0 2px rgba(255,255,255,1)'
-            : '0 0 3px rgba(255,255,255,0.4)',
         }}
       />
 
