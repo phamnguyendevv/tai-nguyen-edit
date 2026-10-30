@@ -1,26 +1,19 @@
 {
-  "name": "tainguyen-edit",
-  "version": "0.1.0",
+  "name": "tainguyen-edit-monorepo",
+  "version": "1.0.0",
   "private": true,
+  "description": "Sound Effects Platform - Separated Backend and Frontend Architecture",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "dev:fe": "npm run dev --prefix frontend",
+    "dev:be": "npm run dev --prefix backend",
+    "build:fe": "npm run build --prefix frontend",
+    "build:be": "npm run build --prefix backend",
+    "build": "npm run build:be && npm run build:fe",
+    "install:all": "npm install --prefix backend && npm install --prefix frontend",
+    "generate:audio": "npm run generate:audio --prefix backend"
   },
-  "dependencies": {
-    "next": "16.4.3",
-    "react": "19.3.0",
-    "react-dom": "19.3.0"
-  },
-  "devDependencies": {
-    "@tailwindcss/turbopack": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.4.3",
-    "tailwindcss": "^4",
-    "typescript": "^5"
-  }
+  "workspaces": [
+    "backend",
+    "frontend"
+  ]
 }

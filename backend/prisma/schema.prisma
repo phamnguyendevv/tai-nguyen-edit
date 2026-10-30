@@ -1,0 +1,114 @@
+// Prisma Schema for Sound Effects Platform
+// Database provider can be postgresql or sqlite
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Category {
+  id            String        @id @default(cuid())
+  name          String        @unique
+  slug          String        @unique
+  order         Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  subcategories Subcategory[]
+  soundEffects  SoundEffect[]
+
+  @@map("categories")
+}
+
+model Subcategory {
+  id           String        @id @default(cuid())
+  name         String
+  slug         String        @unique
+  categoryId   String
+  order        Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  soundEffects SoundEffect[]
+
+  @@map("subcategories")
+}
+
+model SoundEffect {
+  id             String          @id @default(cuid())
+  title          String
+  slug           String          @unique
+  categoryId     String
+  subcategoryId  String?
+  audioUrl       String
+  duration       Float
+  waveform       Float[]
+  tags           String[]
+  downloadsCount Int             @default(0)
+  popularity     Int             @default(50)
+  fileSizeBytes  Int             @default(0)
+  format         String          @default("WAV 44.1kHz 16-bit")
+  license        String          @default("Royalty-Free / CC0")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  category       Category        @relation(fields: [categoryId], references: [id])
+  subcategory    Subcategory?    @relation(fields: [subcategoryId], references: [id])
+  favorites      Favorite[]
+  downloadEvents DownloadEvent[]
+
+  @@index([categoryId])
+  @@index([subcategoryId])
+  @@index([popularity])
+  @@map("sound_effects")
+}
+
+model Favorite {
+  id            String      @id @default(cuid())
+  userId        String?
+  soundEffectId String
+  createdAt     DateTime    @default(now())
+
+  soundEffect   SoundEffect @relation(fields: [soundEffectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, soundEffectId])
+  @@map("favorites")
+}
+
+model DownloadEvent {
+  id            String      @id @default(cuid())
+  soundEffectId String
+  userId        String?
+  ipHash        String?
+  userAgent     String?
+  createdAt     DateTime    @default(now())
+
+  soundEffect   SoundEffect @relation(fields: [soundEffectId], references: [id], onDelete: Cascade)
+
+  @@index([soundEffectId])
+  @@map("download_events")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  password  String
+  name      String
+  role      Role       @default(USER)
+  avatarUrl String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  favorites Favorite[]
+
+  @@map("users")
+}
