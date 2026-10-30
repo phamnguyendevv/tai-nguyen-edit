@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import { X, Crown, Sparkles, Check, Zap, ArrowRight, ShieldCheck } from 'lucide-react';
-import Link from 'next/link';
+import { X } from 'lucide-react';
 
 interface DownloadLimitModalProps {
   isOpen: boolean;
@@ -22,106 +21,88 @@ export const DownloadLimitModal: React.FC<DownloadLimitModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
       {/* Backdrop click to close */}
       <div className="absolute inset-0" onClick={onClose} />
 
-      <div className="relative w-full max-w-lg bg-[#141414] border border-neutral-700/80 rounded-2xl p-6 sm:p-8 shadow-2xl z-10 animate-in zoom-in-95 duration-200">
-        {/* Close Button */}
+      <div className="relative w-full max-w-[700px] bg-white rounded-2xl shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200 flex flex-col sm:flex-row border border-neutral-800/20">
+        {/* Close Button for easy dismissal */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-neutral-400 hover:text-white rounded-full hover:bg-neutral-800 transition-colors cursor-pointer"
-          aria-label="Đóng"
+          className="absolute top-3.5 right-3.5 p-1.5 text-neutral-400 hover:text-neutral-800 rounded-full hover:bg-neutral-100 transition-colors z-20 cursor-pointer"
+          aria-label="Close"
         >
           <X className="w-5 h-5" />
         </button>
 
-        {/* Top Icon Badge */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/20 via-orange-500/20 to-red-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
-            <Crown className="w-6 h-6 text-amber-400" />
-          </div>
+        {/* Left: 3D Soundwave Artwork */}
+        <div className="w-full sm:w-[48%] h-44 sm:h-auto min-h-[180px] sm:min-h-[420px] relative bg-neutral-950 flex-shrink-0 overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/premium-banner.png"
+            alt="Premium Plan sound visualizer"
+            className="w-full h-full object-cover object-center select-none"
+          />
+        </div>
+
+        {/* Right: Premium Information Content */}
+        <div className="w-full sm:w-[52%] bg-white text-neutral-900 p-6 sm:p-8 flex flex-col justify-between">
           <div>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30">
-              <Sparkles className="w-3 h-3" /> Hạn mức 5 lượt / ngày
+            {/* Top plan category */}
+            <span className="inline-block text-[11px] sm:text-xs font-semibold text-blue-600 tracking-wider uppercase mb-1.5">
+              PREMIUM PLAN
             </span>
-            <h3 className="text-lg sm:text-xl font-bold text-white mt-1">
-              Đã hết 5 lượt tải hôm nay
-            </h3>
+
+            {/* Main title */}
+            <h2 className="text-xl sm:text-[22px] font-bold text-neutral-900 tracking-tight leading-snug mb-2.5">
+              Keep downloading sound effects
+            </h2>
+
+            {/* Description note with user's daily limit */}
+            <p className="text-xs sm:text-[13px] text-neutral-600 leading-relaxed mb-5">
+              You&apos;ve reached your daily limit of {maxLimit} downloads as a free user.
+            </p>
+
+            {/* Feature list with bullets matching Image 1 */}
+            <ul className="space-y-2.5 text-xs sm:text-[13px] text-neutral-800 font-normal mb-6 pl-1">
+              <li className="flex items-center gap-2.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-neutral-900 flex-shrink-0" />
+                <span>Unlimited sound effect downloads</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-neutral-900 flex-shrink-0" />
+                <span>Access to premium sound effects</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-neutral-900 flex-shrink-0" />
+                <span>Commercial usage rights</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-neutral-900 flex-shrink-0" />
+                <span>Priority support</span>
+              </li>
+            </ul>
           </div>
-        </div>
 
-        {/* Usage Progress Bar */}
-        <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3.5 mb-5">
-          <div className="flex items-center justify-between text-xs font-medium text-neutral-300 mb-2">
-            <span>Lượt tải hôm nay đã sử dụng</span>
-            <span className="text-amber-400 font-bold">
-              {downloadsCount} / {maxLimit} bài (100%)
-            </span>
+          {/* Action buttons */}
+          <div className="pt-2 flex flex-col gap-2.5">
+            <button
+              type="button"
+              onClick={onUpgrade}
+              className="w-full py-3 px-4 rounded-lg bg-black hover:bg-neutral-800 active:scale-[0.99] text-white font-medium text-xs sm:text-sm transition-all duration-150 cursor-pointer shadow-sm text-center"
+            >
+              Upgrade to Premium
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full py-1 text-xs sm:text-[13px] font-medium text-neutral-600 hover:text-neutral-900 transition-colors cursor-pointer text-center"
+            >
+              Maybe later
+            </button>
           </div>
-          <div className="w-full h-2.5 bg-neutral-800 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-amber-500 to-red-500 rounded-full w-full" />
-          </div>
-          <p className="text-[11px] text-neutral-400 mt-2">
-            Tài khoản miễn phí được tải tối đa <strong>{maxLimit} sound effect mỗi ngày</strong>. Lượt tải sẽ tự động làm mới sau <strong>00:00</strong> đêm nay, hoặc bạn có thể nâng cấp gói <strong>Pro</strong> để tải không giới hạn ngay lập tức!
-          </p>
-        </div>
-
-        {/* Main message & Benefits */}
-        <div className="space-y-3 mb-6">
-          <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed">
-            Nâng cấp gói thành viên <strong className="text-white">Pro</strong> để mở khóa lượt tải không giới hạn và tải trọn bộ file âm thanh gốc chất lượng cao nhất:
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-neutral-300 pt-1">
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-neutral-900/60 border border-neutral-800/80">
-              <Zap className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-              <span>Tải <strong>không giới hạn</strong> SFX</span>
-            </div>
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-neutral-900/60 border border-neutral-800/80">
-              <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-              <span>File gốc <strong>WAV 44.1kHz</strong></span>
-            </div>
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-neutral-900/60 border border-neutral-800/80">
-              <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-              <span>Giấy phép <strong>thương mại</strong></span>
-            </div>
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-neutral-900/60 border border-neutral-800/80">
-              <Sparkles className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-              <span>Tạo <strong>Bộ sưu tập VIP</strong></span>
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center gap-2.5">
-          <button
-            type="button"
-            onClick={onUpgrade}
-            className="w-full sm:flex-1 py-2.5 sm:py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-black font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg hover:shadow-amber-500/20 active:scale-98 transition-all cursor-pointer"
-          >
-            <Crown className="w-4 h-4" />
-            <span>Nâng cấp Pro ngay (Từ 63k/tháng)</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-full sm:w-auto py-2.5 sm:py-3 px-4 rounded-xl bg-neutral-800/80 hover:bg-neutral-800 text-neutral-300 hover:text-white font-medium text-xs sm:text-sm transition-colors cursor-pointer"
-          >
-            Để sau
-          </button>
-        </div>
-
-        <div className="text-center mt-3">
-          <Link
-            href="/pricing"
-            onClick={onClose}
-            className="text-[11px] text-neutral-400 hover:text-white underline underline-offset-4 transition-colors"
-          >
-            Xem bảng so sánh chi tiết các gói dịch vụ
-          </Link>
         </div>
       </div>
     </div>
