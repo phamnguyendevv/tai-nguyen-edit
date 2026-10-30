@@ -598,18 +598,29 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
           console.warn('Could not save downloads to localStorage', e);
         }
 
-        // Trigger API to increment downloads
-        fetch(`/api/sound-effects/${track.id}/download`, { method: 'POST' }).catch((e) =>
-          console.warn('Failed to increment download counter', e)
-        );
+        // Fetch binary audio file from the official download API
+        const res = await fetch(`/api/sound-effects/${track.id}/download`, {
+          method: 'POST',
+        });
 
-        // Create download trigger element
+        if (!res.ok) {
+          throw new Error(`Download API returned status ${res.status}`);
+        }
+
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        // Create and trigger browser download element with pristine WAV
         const link = document.createElement('a');
-        link.href = track.audioUrl;
-        link.download = `${track.slug}.wav`;
+        link.href = blobUrl;
+        link.download = `${track.slug || track.id}.wav`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+
+        setTimeout(() => {
+          URL.revokeObjectURL(blobUrl);
+        }, 3000);
 
         if (isPro) {
           setDownloadToast(`Đã tải: ${track.title} (Gói Pro - Không giới hạn)`);

@@ -59,6 +59,20 @@ export class SoundEffectController {
       if (!updated) {
         return res.status(404).json({ error: 'Sound effect not found' });
       }
+
+      // If client requests the binary attachment directly
+      if (req.query.file === 'true' || req.headers.accept?.includes('audio/')) {
+        const fs = await import('fs');
+        const path = await import('path');
+        const cleanPath = updated.audioUrl.startsWith('/') ? updated.audioUrl.slice(1) : updated.audioUrl;
+        const filePath = path.join(process.cwd(), 'public', cleanPath);
+        if (fs.existsSync(filePath)) {
+          res.setHeader('Content-Type', 'audio/wav');
+          res.setHeader('Content-Disposition', `attachment; filename="${updated.slug}.wav"`);
+          return fs.createReadStream(filePath).pipe(res);
+        }
+      }
+
       return res.status(200).json({
         success: true,
         downloadsCount: updated.downloadsCount,
