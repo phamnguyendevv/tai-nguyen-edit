@@ -9,6 +9,12 @@ import React, {
   useCallback,
 } from 'react';
 import { SoundEffect } from '@/types/sfx';
+import { useAuth } from '@/lib/auth/auth-context';
+import { DownloadLimitModal } from '@/components/DownloadLimitModal';
+import { CheckoutModal } from '@/components/CheckoutModal';
+import { PRICING_PLANS } from '@/components/PricingSection';
+
+export const FREE_DOWNLOAD_LIMIT = 5;
 
 export interface UserCollection {
   id: string;
@@ -48,11 +54,18 @@ interface AudioContextType {
   downloadTrack: (track: SoundEffect) => Promise<void>;
   clearDownloads: () => void;
   downloadToast: string | null;
+  freeDownloadLimit: number;
+  remainingDownloads: number;
+  isDownloadLimitReached: boolean;
+  isLimitModalOpen: boolean;
+  openLimitModal: () => void;
+  closeLimitModal: () => void;
 }
 
 const AudioContext = createContext<AudioContextType | null>(null);
 
 export function PlayerProvider({ children }: { children: React.ReactNode }) {
+  const { isPro } = useAuth();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const pendingSeekRef = useRef<number | null>(null);
   const playPromiseRef = useRef<Promise<void> | null>(null);
@@ -68,6 +81,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [downloads, setDownloads] = useState<string[]>([]);
   const [collections, setCollections] = useState<UserCollection[]>([]);
   const [downloadToast, setDownloadToast] = useState<string | null>(null);
+  const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   // Initialize favorites, downloads and collections from localStorage on client
   useEffect(() => {
@@ -535,44 +550,66 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isMuted, volume]);
 
-  const downloadTrack = useCallback(async (track: SoundEffect) => {
-    try {
-      // Add to downloads history
-      setDownloads((prev) => {
-        const next = [track.id, ...prev.filter((id) => id !== track.id)];
+  const downloadTrack = useCallback(
+    async (track: SoundEffect) => {
+      const alreadyDownloaded = downloads.includes(track.id);
+      const isLimitReached = !isPro && downloads.length >= FREE_DOWNLOAD_LIMIT && !alreadyDownloaded;
+
+      if (isLimitReached) {
+        setIsLimitModalOpen(true);
+        setDownloadToast(`Đã đạt giới hạn 5 lượt tải miễn phí. Vui lòng nâng cấp Pro để tải không giới hạn!`);
+        setTimeout(() => {
+          setDownloadToast(null);
+        }, 4000);
+        return;
+      }
+
+      try {
+        const nextDownloads = [track.id, ...downloads.filter((id) => id !== track.id)];
+        setDownloads(nextDownloads);
         try {
-          localStorage.setItem('sfx_downloads', JSON.stringify(next));
+          localStorage.setItem('sfx_downloads', JSON.stringify(nextDownloads));
         } catch (e) {
           console.warn('Could not save downloads to localStorage', e);
         }
-        return next;
-      });
 
-      // Trigger API to increment downloads
-      fetch(`/api/sound-effects/${track.id}/download`, { method: 'POST' }).catch((e) =>
-        console.warn('Failed to increment download counter', e)
-      );
+        // Trigger API to increment downloads
+        fetch(`/api/sound-effects/${track.id}/download`, { method: 'POST' }).catch((e) =>
+          console.warn('Failed to increment download counter', e)
+        );
 
-      // Create download trigger element
-      const link = document.createElement('a');
-      link.href = track.audioUrl;
-      link.download = `${track.slug}.wav`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        // Create download trigger element
+        const link = document.createElement('a');
+        link.href = track.audioUrl;
+        link.download = `${track.slug}.wav`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
-      setDownloadToast(`Downloaded: ${track.title}`);
-      setTimeout(() => {
-        setDownloadToast(null);
-      }, 3500);
-    } catch (e) {
-      console.error('Download error:', e);
-      setDownloadToast(`Failed to download ${track.title}`);
-      setTimeout(() => {
-        setDownloadToast(null);
-      }, 3500);
-    }
-  }, []);
+        if (isPro) {
+          setDownloadToast(`Đã tải: ${track.title} (Gói Pro - Không giới hạn)`);
+        } else {
+          const remaining = Math.max(0, FREE_DOWNLOAD_LIMIT - nextDownloads.length);
+          setDownloadToast(
+            `Đã tải: ${track.title} (Còn lại ${remaining}/${FREE_DOWNLOAD_LIMIT} lượt tải miễn phí)`
+          );
+        }
+        setTimeout(() => {
+          setDownloadToast(null);
+        }, 3500);
+      } catch (e) {
+        console.error('Download error:', e);
+        setDownloadToast(`Lỗi khi tải ${track.title}`);
+        setTimeout(() => {
+          setDownloadToast(null);
+        }, 3500);
+      }
+    },
+    [downloads, isPro]
+  );
+
+  const remainingDownloads = isPro ? Infinity : Math.max(0, FREE_DOWNLOAD_LIMIT - downloads.length);
+  const isDownloadLimitReached = !isPro && downloads.length >= FREE_DOWNLOAD_LIMIT;
 
   return (
     <AudioContext.Provider
@@ -607,9 +644,39 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         downloadTrack,
         clearDownloads,
         downloadToast,
+        freeDownloadLimit: FREE_DOWNLOAD_LIMIT,
+        remainingDownloads,
+        isDownloadLimitReached,
+        isLimitModalOpen,
+        openLimitModal: () => setIsLimitModalOpen(true),
+        closeLimitModal: () => setIsLimitModalOpen(false),
       }}
     >
       {children}
+
+      {/* Free Download Limit Modal */}
+      <DownloadLimitModal
+        isOpen={isLimitModalOpen}
+        onClose={() => setIsLimitModalOpen(false)}
+        downloadsCount={downloads.length}
+        maxLimit={FREE_DOWNLOAD_LIMIT}
+        onUpgrade={() => {
+          setIsLimitModalOpen(false);
+          setIsCheckoutOpen(true);
+        }}
+      />
+
+      {/* Direct Pro Checkout Modal when user upgrades from limit modal */}
+      <CheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        plan={PRICING_PLANS[1] || PRICING_PLANS[0]}
+        onSuccess={() => {
+          setIsCheckoutOpen(false);
+          setDownloadToast('Chúc mừng! Bạn đã nâng cấp gói Pro thành công!');
+          setTimeout(() => setDownloadToast(null), 4000);
+        }}
+      />
     </AudioContext.Provider>
   );
 }

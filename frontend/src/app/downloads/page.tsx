@@ -7,11 +7,13 @@ import { BottomPlayer } from '@/components/BottomPlayer';
 import { SoundEffectCard } from '@/components/SoundEffectCard';
 import { SOUND_EFFECTS_DATA } from '@/lib/data/sound-effects';
 import { useAudio } from '@/lib/audio/player-context';
+import { useAuth } from '@/lib/auth/auth-context';
 import { SoundEffect } from '@/types/sfx';
-import { Download, Trash2, ArrowLeft, Search, Music } from 'lucide-react';
+import { Download, Trash2, ArrowLeft, Search, Music, Crown, Sparkles } from 'lucide-react';
 
 export default function DownloadsPage() {
-  const { downloads, clearDownloads } = useAudio();
+  const { isPro } = useAuth();
+  const { downloads, clearDownloads, isDownloadLimitReached, openLimitModal } = useAudio();
   const [filterQuery, setFilterQuery] = useState('');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
@@ -75,6 +77,45 @@ export default function DownloadsPage() {
             </Link>
           </div>
         </div>
+
+        {/* Free Plan Quota Notification Banner */}
+        {!isPro && (
+          <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-[#171717] to-[#111111] border border-neutral-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
+            <div className="flex items-start sm:items-center gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0">
+                <Crown className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs sm:text-sm font-bold text-white">Hạn mức tải gói miễn phí</span>
+                  <span
+                    className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                      isDownloadLimitReached
+                        ? 'bg-red-500/15 text-red-400 border border-red-500/30'
+                        : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                    }`}
+                  >
+                    {downloads.length} / 5 bài ({Math.min(100, Math.round((downloads.length / 5) * 100))}%)
+                  </span>
+                </div>
+                <p className="text-[11px] sm:text-xs text-neutral-400 mt-1">
+                  {isDownloadLimitReached
+                    ? 'Bạn đã đạt giới hạn 5 lượt tải miễn phí. Hãy đăng ký gói thành viên để tải không giới hạn.'
+                    : `Bạn còn ${Math.max(0, 5 - downloads.length)} lượt tải miễn phí nữa trước khi cần nâng cấp.`}
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={openLimitModal}
+              className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-black bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-300 hover:to-orange-300 transition-all shadow-md active:scale-95 cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Nâng cấp Pro không giới hạn</span>
+            </button>
+          </div>
+        )}
 
         {/* Search filter if there are items */}
         {downloadedSoundEffects.length > 4 && (

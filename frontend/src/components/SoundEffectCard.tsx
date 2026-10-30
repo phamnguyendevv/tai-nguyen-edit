@@ -21,6 +21,9 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
     togglePlay,
     seekTrack,
     downloadTrack,
+    downloads,
+    isDownloadLimitReached,
+    remainingDownloads,
   } = useAudio();
 
   const [optimisticSeek, setOptimisticSeek] = useState<number | null>(null);
@@ -137,8 +140,20 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
         <button
           type="button"
           onClick={() => downloadTrack(soundEffect)}
-          className="p-1 sm:p-1.5 rounded-md text-red-400 hover:text-red-300 hover:bg-white/5 transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer"
-          title={`Download ${soundEffect.title} (WAV)`}
+          className={`p-1 sm:p-1.5 rounded-md transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
+            isDownloadLimitReached && !downloads.includes(soundEffect.id)
+              ? 'text-amber-400 hover:text-amber-300 hover:bg-amber-400/10'
+              : 'text-red-400 hover:text-red-300 hover:bg-white/5'
+          }`}
+          title={
+            downloads.includes(soundEffect.id)
+              ? `Tải lại ${soundEffect.title} (Đã tải)`
+              : isDownloadLimitReached
+              ? `Đã đạt giới hạn 5 lượt tải miễn phí - Bấm để nâng cấp Pro`
+              : remainingDownloads !== Infinity
+              ? `Tải ${soundEffect.title} (Còn ${remainingDownloads}/5 lượt miễn phí)`
+              : `Tải ${soundEffect.title} (WAV)`
+          }
           aria-label={`Download ${soundEffect.title}`}
         >
           <Download className="w-4 h-4" />
