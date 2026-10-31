@@ -57,6 +57,7 @@ export const BreadcrumbsAndSort: React.FC<BreadcrumbsAndSortProps> = ({
 
   const sortLabels: Record<SortOption, string> = {
     'most-popular': t('mostPopular'),
+    'most-favorites': t('mostFavorites'),
     'newest': t('newest'),
     'oldest': t('oldest'),
     'name-asc': t('nameAsc'),

@@ -45,6 +45,19 @@ export class SoundEffectRepository {
 
     // Sort results
     switch (sort) {
+      case 'most-favorites':
+        results.sort((a, b) => {
+          const favA =
+            typeof a.favoritesCount === 'number'
+              ? a.favoritesCount
+              : Math.max(12, Math.round(a.downloadsCount * 0.18));
+          const favB =
+            typeof b.favoritesCount === 'number'
+              ? b.favoritesCount
+              : Math.max(12, Math.round(b.downloadsCount * 0.18));
+          return favB - favA || b.downloadsCount - a.downloadsCount;
+        });
+        break;
       case 'newest':
         results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;

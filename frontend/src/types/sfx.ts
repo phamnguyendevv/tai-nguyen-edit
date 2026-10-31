@@ -45,6 +45,7 @@ export interface SoundEffect {
 
 export type SortOption =
   | 'most-popular'
+  | 'most-favorites'
   | 'newest'
   | 'oldest'
   | 'name-asc'
