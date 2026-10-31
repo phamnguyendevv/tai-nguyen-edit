@@ -23,10 +23,10 @@ export const CATEGORIES_DATA: Category[] = [
     id: 'cat-foley',
     name: 'Foley',
     slug: 'foley',
-    count: 5,
+    count: 12,
     subcategories: [
       { id: 'sub-wood', name: 'Doors and Wood', slug: 'doors-wood', count: 1 },
-      { id: 'sub-steps', name: 'Footsteps', slug: 'footsteps', count: 1 },
+      { id: 'sub-steps', name: 'Footsteps', slug: 'footsteps', count: 8 },
       { id: 'sub-cloth', name: 'Cloth and Movement', slug: 'cloth-movement', count: 1 },
       { id: 'sub-impacts', name: 'Body and Hits', slug: 'body-hits', count: 1 },
       { id: 'sub-keys', name: 'Keys and Metal', slug: 'keys-metal', count: 1 },

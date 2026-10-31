@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Play, Pause, Download, Heart, Loader2 } from 'lucide-react';
 import { SoundEffect } from '@/types/sfx';
 import { useAudio } from '@/lib/audio/player-context';
@@ -108,19 +109,19 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
 
       {/* Title & Duration & Mini Audio Bars */}
       <div
-        onClick={() => togglePlay(soundEffect)}
-        className="w-[125px] sm:w-[190px] md:w-[220px] lg:w-[240px] flex-shrink-0 flex flex-col justify-center min-w-0 cursor-pointer select-none pr-1 sm:pr-2"
-        title={isThisPlaying ? `Pause ${soundEffect.title}` : `Play ${soundEffect.title}`}
+        className="w-[125px] sm:w-[190px] md:w-[220px] lg:w-[240px] flex-shrink-0 flex flex-col justify-center min-w-0 pr-1 sm:pr-2 select-none"
       >
         <div className="flex items-center gap-1.5 w-full min-w-0 overflow-hidden">
-          <span
-            className={`text-xs sm:text-sm font-medium truncate block transition-colors duration-200 ${
+          <Link
+            href={`/sound-effects/${soundEffect.slug || soundEffect.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className={`text-xs sm:text-sm font-medium truncate block transition-colors duration-200 hover:underline hover:text-white cursor-pointer ${
               isThisPlaying ? 'text-white font-semibold' : 'text-neutral-200 group-hover:text-white'
             }`}
             title={soundEffect.title}
           >
             {soundEffect.title}
-          </span>
+          </Link>
           {/* Animated mini equalizer when playing */}
           {isThisPlaying && (
             <span className="flex items-end gap-[1.5px] h-3 w-3 flex-shrink-0">
@@ -130,9 +131,14 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
             </span>
           )}
         </div>
-        <span className="text-[10px] sm:text-[11px] text-neutral-400 font-mono tracking-tight mt-0.5 truncate block">
+        <button
+          type="button"
+          onClick={() => togglePlay(soundEffect)}
+          className="text-[10px] sm:text-[11px] text-neutral-400 hover:text-neutral-300 font-mono tracking-tight mt-0.5 truncate block text-left cursor-pointer transition-colors"
+          title={isThisPlaying ? `Pause ${soundEffect.title}` : `Play ${soundEffect.title}`}
+        >
           {formatTime(activeElapsed)} / {formatTime(currentDuration)}
-        </span>
+        </button>
       </div>
 
       {/* Center: Waveform scrubber */}
