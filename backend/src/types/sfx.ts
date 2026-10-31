@@ -39,6 +39,7 @@ export interface SoundEffect {
   waveform: number[]; // normalized 0.1 - 1.0 amplitude values
   tags: string[];
   downloadsCount: number;
+  favoritesCount?: number;
   popularity: number;
   createdAt: string;
   fileSizeBytes: number;

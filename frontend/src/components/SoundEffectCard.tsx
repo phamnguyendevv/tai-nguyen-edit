@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, Download, Loader2 } from 'lucide-react';
+import { Play, Pause, Download, Heart, Loader2 } from 'lucide-react';
 import { SoundEffect } from '@/types/sfx';
 import { useAudio } from '@/lib/audio/player-context';
 import { useLanguage } from '@/lib/i18n/language-context';
@@ -26,11 +26,20 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
     isDownloadLimitReached,
     remainingDownloads,
     openLimitModal,
+    toggleFavorite,
+    isFavorite,
   } = useAudio();
   const { language } = useLanguage();
   const isVi = language === 'vi';
 
   const [optimisticSeek, setOptimisticSeek] = useState<number | null>(null);
+
+  const isFav = isFavorite(soundEffect.id);
+  const baseFavorites =
+    typeof soundEffect.favoritesCount === 'number'
+      ? soundEffect.favoritesCount
+      : Math.max(12, Math.round(soundEffect.downloadsCount * 0.18));
+  const currentFavoritesCount = baseFavorites + (isFav ? 1 : 0);
 
   const isCurrent = currentTrack?.id === soundEffect.id;
   const isThisPlaying = isCurrent && isPlaying;
@@ -140,6 +149,38 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
       <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
         {/* Add To Collection Popover Button (with + icon) */}
         <AddToCollectionPopover soundEffect={soundEffect} />
+
+        {/* Favorite Button (Heart shape) with count */}
+        <button
+          type="button"
+          onClick={() => toggleFavorite(soundEffect.id)}
+          className={`flex items-center gap-1.5 px-2 py-1 sm:py-1.5 rounded-md transition-all duration-200 hover:bg-white/5 active:scale-95 cursor-pointer group/fav ${
+            isFav ? 'text-rose-500' : 'text-neutral-400 hover:text-rose-400'
+          }`}
+          title={
+            isFav
+              ? isVi
+                ? `Bỏ thích ${soundEffect.title} (${currentFavoritesCount})`
+                : `Unlike ${soundEffect.title} (${currentFavoritesCount})`
+              : isVi
+              ? `Yêu thích ${soundEffect.title} (${currentFavoritesCount})`
+              : `Favorite ${soundEffect.title} (${currentFavoritesCount})`
+          }
+          aria-label={isVi ? `Yêu thích ${soundEffect.title}` : `Favorite ${soundEffect.title}`}
+        >
+          <Heart
+            className={`w-4 h-4 transition-transform duration-200 group-hover/fav:scale-110 ${
+              isFav ? 'fill-rose-500 text-rose-500 scale-105' : ''
+            }`}
+          />
+          <span
+            className={`text-xs font-mono font-medium leading-none ${
+              isFav ? 'text-rose-400 font-semibold' : 'text-neutral-400 group-hover/fav:text-neutral-200'
+            }`}
+          >
+            {currentFavoritesCount}
+          </span>
+        </button>
 
         {/* Download button */}
         <button
