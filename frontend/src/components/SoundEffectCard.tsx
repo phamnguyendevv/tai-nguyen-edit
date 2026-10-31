@@ -109,12 +109,12 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
       {/* Title & Duration & Mini Audio Bars */}
       <div
         onClick={() => togglePlay(soundEffect)}
-        className="flex flex-col min-w-[80px] sm:min-w-[130px] max-w-[110px] sm:max-w-[175px] truncate cursor-pointer select-none"
+        className="w-[125px] sm:w-[190px] md:w-[220px] lg:w-[240px] flex-shrink-0 flex flex-col justify-center min-w-0 cursor-pointer select-none pr-1 sm:pr-2"
         title={isThisPlaying ? `Pause ${soundEffect.title}` : `Play ${soundEffect.title}`}
       >
-        <div className="flex items-center gap-1.5 truncate">
+        <div className="flex items-center gap-1.5 w-full min-w-0 overflow-hidden">
           <span
-            className={`text-xs sm:text-sm font-medium truncate transition-colors duration-200 ${
+            className={`text-xs sm:text-sm font-medium truncate block transition-colors duration-200 ${
               isThisPlaying ? 'text-white font-semibold' : 'text-neutral-200 group-hover:text-white'
             }`}
             title={soundEffect.title}
@@ -130,13 +130,13 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
             </span>
           )}
         </div>
-        <span className="text-[10px] sm:text-[11px] text-neutral-400 font-mono tracking-tight mt-0.5">
+        <span className="text-[10px] sm:text-[11px] text-neutral-400 font-mono tracking-tight mt-0.5 truncate block">
           {formatTime(activeElapsed)} / {formatTime(currentDuration)}
         </span>
       </div>
 
       {/* Center: Waveform scrubber */}
-      <div className="flex-1 min-w-[70px] sm:min-w-[100px] px-0.5 sm:px-1">
+      <div className="flex-1 min-w-0 px-1 sm:px-3">
         <WaveformScrubber
           waveform={soundEffect.waveform}
           progress={activeProgress}
@@ -146,7 +146,7 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
       </div>
 
       {/* Right: Actions with smooth transitions */}
-      <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+      <div className="flex items-center justify-end gap-1.5 sm:gap-2 flex-shrink-0">
         {/* Add To Collection Popover Button (with + icon) */}
         <AddToCollectionPopover soundEffect={soundEffect} />
 
@@ -174,7 +174,7 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
             }`}
           />
           <span
-            className={`text-xs font-mono font-medium leading-none ${
+            className={`text-xs font-mono font-medium tabular-nums min-w-[24px] text-left leading-none ${
               isFav ? 'text-rose-400 font-semibold' : 'text-neutral-400 group-hover/fav:text-neutral-200'
             }`}
           >
