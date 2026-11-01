@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { User, Role, UserStatus, CreateUserData, UpdateUserData } from '@/types/auth';
 import { ApiClient } from '@/lib/api-client';
+import { CustomSelect } from '@/components/CustomSelect';
 
 interface AdminUserManagementProps {
   currentUser: User | null;
@@ -438,37 +439,46 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
         {/* Filter Dropdowns */}
         <div className="flex items-center gap-2 flex-wrap">
           {/* Role Filter */}
-          <select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value as any)}
-            className="bg-[#1c1c1c] border border-neutral-700/80 rounded-lg px-3 py-2 text-xs text-neutral-300 focus:outline-none focus:border-neutral-400 transition-colors cursor-pointer"
-          >
-            <option value="ALL">Mọi Vai Trò</option>
-            <option value="ADMIN">🛡️ Quản trị viên (ADMIN)</option>
-            <option value="USER">👤 Người dùng (USER)</option>
-          </select>
+          <div className="w-36">
+            <CustomSelect
+              size="sm"
+              value={roleFilter}
+              onChange={(val) => setRoleFilter(val as any)}
+              options={[
+                { value: 'ALL', label: 'Mọi Vai Trò' },
+                { value: 'ADMIN', label: '🛡️ Quản trị (Admin)' },
+                { value: 'USER', label: '👤 Người dùng (User)' },
+              ]}
+            />
+          </div>
 
           {/* Tier Filter */}
-          <select
-            value={tierFilter}
-            onChange={(e) => setTierFilter(e.target.value as any)}
-            className="bg-[#1c1c1c] border border-neutral-700/80 rounded-lg px-3 py-2 text-xs text-neutral-300 focus:outline-none focus:border-neutral-400 transition-colors cursor-pointer"
-          >
-            <option value="ALL">Mọi Gói Cước</option>
-            <option value="PRO">⚡ Gói Pro VIP</option>
-            <option value="FREE">Miễn phí (Free)</option>
-          </select>
+          <div className="w-36">
+            <CustomSelect
+              size="sm"
+              value={tierFilter}
+              onChange={(val) => setTierFilter(val as any)}
+              options={[
+                { value: 'ALL', label: 'Mọi Gói Cước' },
+                { value: 'PRO', label: '⚡ Gói Pro VIP' },
+                { value: 'FREE', label: 'Miễn phí (Free)' },
+              ]}
+            />
+          </div>
 
           {/* Status Filter */}
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
-            className="bg-[#1c1c1c] border border-neutral-700/80 rounded-lg px-3 py-2 text-xs text-neutral-300 focus:outline-none focus:border-neutral-400 transition-colors cursor-pointer"
-          >
-            <option value="ALL">Mọi Trạng Thái</option>
-            <option value="ACTIVE">🟢 Đang hoạt động</option>
-            <option value="BANNED">🔴 Đã bị khóa</option>
-          </select>
+          <div className="w-40">
+            <CustomSelect
+              size="sm"
+              value={statusFilter}
+              onChange={(val) => setStatusFilter(val as any)}
+              options={[
+                { value: 'ALL', label: 'Mọi Trạng Thái' },
+                { value: 'ACTIVE', label: '🟢 Đang hoạt động' },
+                { value: 'BANNED', label: '🔴 Đã bị khóa' },
+              ]}
+            />
+          </div>
         </div>
       </div>
 
@@ -832,14 +842,14 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
                   <label className="block text-neutral-400 font-medium mb-1">
                     Vai Trò (Role) <span className="text-red-400">*</span>
                   </label>
-                  <select
+                  <CustomSelect
                     value={role}
-                    onChange={(e) => setRole(e.target.value as Role)}
-                    className="w-full bg-[#1f1f1f] border border-[#333333] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-neutral-400 transition-colors cursor-pointer"
-                  >
-                    <option value="USER">👤 Người dùng (USER)</option>
-                    <option value="ADMIN">🛡️ Quản trị viên (ADMIN)</option>
-                  </select>
+                    onChange={(val) => setRole(val as Role)}
+                    options={[
+                      { value: 'USER', label: '👤 Người dùng (USER)' },
+                      { value: 'ADMIN', label: '🛡️ Quản trị viên (ADMIN)' },
+                    ]}
+                  />
                 </div>
 
                 {/* Status */}
@@ -847,14 +857,14 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
                   <label className="block text-neutral-400 font-medium mb-1">
                     Trạng Thái <span className="text-red-400">*</span>
                   </label>
-                  <select
+                  <CustomSelect
                     value={status}
-                    onChange={(e) => setStatus(e.target.value as UserStatus)}
-                    className="w-full bg-[#1f1f1f] border border-[#333333] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-neutral-400 transition-colors cursor-pointer"
-                  >
-                    <option value="ACTIVE">🟢 Đang hoạt động</option>
-                    <option value="BANNED">🔴 Khóa tài khoản</option>
-                  </select>
+                    onChange={(val) => setStatus(val as UserStatus)}
+                    options={[
+                      { value: 'ACTIVE', label: '🟢 Đang hoạt động' },
+                      { value: 'BANNED', label: '🔴 Khóa tài khoản' },
+                    ]}
+                  />
                 </div>
               </div>
 

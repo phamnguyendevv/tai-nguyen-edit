@@ -41,6 +41,7 @@ import { LoginModal } from '@/components/LoginModal';
 import { AdminUserManagement } from '@/components/AdminUserManagement';
 import { AdminTrafficAnalytics } from '@/components/AdminTrafficAnalytics';
 import { AdminDashboardOverview } from '@/components/AdminDashboardOverview';
+import { CustomSelect } from '@/components/CustomSelect';
 
 export default function AdminPage() {
   const { user, isAdmin, isAuthenticated, loginWithPreset } = useAuth();
@@ -398,6 +399,26 @@ export default function AdminPage() {
 
   const currentCatObj = categories.find((c) => c.slug === category);
   const availableSubs = currentCatObj?.subcategories || [];
+
+  const categoryOptions = categories
+    .filter((c) => c.slug !== 'all')
+    .map((c) => ({
+      value: c.slug,
+      label: c.name,
+    }));
+
+  const subcategoryOptions = availableSubs.map((sub) => ({
+    value: sub.slug,
+    label: sub.name,
+  }));
+
+  const LICENSE_OPTIONS = [
+    { value: 'Royalty-Free / CC0', label: 'Royalty-Free / CC0 (Public Domain)' },
+    { value: 'Standard Studio License', label: 'Standard Studio License' },
+    { value: 'Exclusive Studio Sound', label: 'Exclusive Studio Sound' },
+    { value: 'Commercial Audio License', label: 'Commercial Audio License' },
+    { value: 'Attribution Required (CC-BY 4.0)', label: 'Attribution Required (CC-BY 4.0)' },
+  ];
 
   const filteredCatalog = soundEffects.filter((item) => {
     if (!catalogSearch) return true;
@@ -765,39 +786,27 @@ export default function AdminPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-neutral-400 mb-1 font-medium">Category</label>
-                    <select
+                    <CustomSelect
                       value={category}
-                      onChange={(e) => {
-                        const newCat = e.target.value as CategorySlug;
+                      options={categoryOptions}
+                      onChange={(newVal) => {
+                        const newCat = newVal as CategorySlug;
                         setCategory(newCat);
                         const sub = categories.find((c) => c.slug === newCat)?.subcategories?.[0]?.slug || '';
                         setSubcategory(sub);
                       }}
-                      className="w-full bg-[#1c1c1c] border border-neutral-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-white"
-                    >
-                      {categories
-                        .filter((c) => c.slug !== 'all')
-                        .map((c) => (
-                          <option key={c.id} value={c.slug}>
-                            {c.name}
-                          </option>
-                        ))}
-                    </select>
+                    />
                   </div>
 
                   <div>
                     <label className="block text-neutral-400 mb-1 font-medium">Subcategory</label>
-                    <select
+                    <CustomSelect
                       value={subcategory}
-                      onChange={(e) => setSubcategory(e.target.value)}
-                      className="w-full bg-[#1c1c1c] border border-neutral-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-white"
-                    >
-                      {availableSubs.map((sub) => (
-                        <option key={sub.id} value={sub.slug}>
-                          {sub.name}
-                        </option>
-                      ))}
-                    </select>
+                      options={subcategoryOptions}
+                      onChange={(newVal) => setSubcategory(newVal)}
+                      placeholder="Chọn Subcategory..."
+                      disabled={subcategoryOptions.length === 0}
+                    />
                   </div>
                 </div>
 
@@ -814,15 +823,11 @@ export default function AdminPage() {
 
                 <div>
                   <label className="block text-neutral-400 mb-1 font-medium">License</label>
-                  <select
+                  <CustomSelect
                     value={license}
-                    onChange={(e) => setLicense(e.target.value)}
-                    className="w-full bg-[#1c1c1c] border border-neutral-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-white"
-                  >
-                    <option value="Royalty-Free / CC0">Royalty-Free / CC0 (Public Domain)</option>
-                    <option value="Standard Studio License">Standard Studio License</option>
-                    <option value="Exclusive Studio Sound">Exclusive Studio Sound</option>
-                  </select>
+                    options={LICENSE_OPTIONS}
+                    onChange={(newVal) => setLicense(newVal)}
+                  />
                 </div>
 
                 <button
