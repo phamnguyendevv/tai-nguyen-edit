@@ -55,7 +55,7 @@ export const AddToCollectionPopover: React.FC<AddToCollectionPopoverProps> = ({ 
   );
 
   return (
-    <div className="relative" ref={popoverRef}>
+    <div className="relative flex-shrink-0" ref={popoverRef}>
       {/* Add To Collection Button (Sleek dark neutral button with plus sign) */}
       <button
         type="button"

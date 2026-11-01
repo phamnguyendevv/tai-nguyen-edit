@@ -142,7 +142,7 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
       </div>
 
       {/* Center: Waveform scrubber */}
-      <div className="flex-1 min-w-0 overflow-hidden px-1 sm:px-2.5">
+      <div className="flex-1 min-w-0 overflow-hidden px-1 sm:px-2 mr-2 sm:mr-3.5">
         <WaveformScrubber
           waveform={soundEffect.waveform}
           progress={activeProgress}
@@ -152,9 +152,11 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
       </div>
 
       {/* Right: Actions with smooth transitions */}
-      <div className="flex items-center justify-end gap-1 sm:gap-1.5 flex-shrink-0">
+      <div className="flex items-center justify-end gap-1.5 sm:gap-2 flex-shrink-0">
         {/* Add To Collection Popover Button (with + icon) */}
-        <AddToCollectionPopover soundEffect={soundEffect} />
+        <div className="flex-shrink-0">
+          <AddToCollectionPopover soundEffect={soundEffect} />
+        </div>
 
         {/* Favorite Button (Heart shape) with count */}
         <button
