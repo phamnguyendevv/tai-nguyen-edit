@@ -115,7 +115,7 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
           <Link
             href={`/sound-effects/${soundEffect.slug || soundEffect.id}`}
             onClick={(e) => e.stopPropagation()}
-            className={`text-xs sm:text-sm font-medium truncate block transition-colors duration-200 hover:underline hover:text-white cursor-pointer ${
+            className={`text-xs sm:text-sm font-medium truncate block transition-colors duration-200 no-underline hover:no-underline hover:text-white cursor-pointer ${
               isThisPlaying ? 'text-white font-semibold' : 'text-neutral-200 group-hover:text-white'
             }`}
             title={soundEffect.title}
