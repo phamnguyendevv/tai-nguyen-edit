@@ -108,7 +108,7 @@ export const WaveformScrubber: React.FC<WaveformScrubberProps> = ({
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
       onPointerLeave={handlePointerLeave}
-      className="relative flex items-center justify-between gap-[1.5px] sm:gap-[2px] w-full h-[28px] cursor-pointer group px-0 py-1 select-none touch-none"
+      className="relative flex items-center justify-between w-full h-[28px] cursor-pointer group px-0 py-1 select-none touch-none overflow-hidden"
       title="Click or drag to seek anywhere in the sound"
     >
       {waveform.map((bar, index) => {
@@ -126,7 +126,7 @@ export const WaveformScrubber: React.FC<WaveformScrubberProps> = ({
         return (
           <div
             key={index}
-            className="flex-1 flex items-center justify-center h-full pointer-events-none"
+            className="flex-1 min-w-0 flex items-center justify-center h-full pointer-events-none"
           >
             <div
               style={{ height: `${barHeight}px` }}

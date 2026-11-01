@@ -85,7 +85,7 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
   return (
     <div
       onContextMenu={(e) => e.preventDefault()}
-      className={`relative group flex items-center justify-between gap-2 sm:gap-3 px-2.5 sm:px-3.5 py-2.5 sm:py-3 rounded-lg border transition-colors duration-200 select-none ${
+      className={`relative group flex items-center justify-between gap-1.5 sm:gap-2.5 md:gap-3 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg border transition-colors duration-200 select-none ${
         isCurrent
           ? 'bg-[#181818] border-neutral-600'
           : 'bg-[#121212] border-[#1e1e1e] hover:bg-[#161616] hover:border-neutral-700/80'
@@ -109,7 +109,7 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
 
       {/* Title & Duration & Mini Audio Bars */}
       <div
-        className="w-[125px] sm:w-[190px] md:w-[220px] lg:w-[240px] flex-shrink-0 flex flex-col justify-center min-w-0 pr-1 sm:pr-2 select-none"
+        className="w-[110px] sm:w-[140px] md:w-[160px] lg:w-[180px] xl:w-[200px] flex-shrink-0 flex flex-col justify-center min-w-0 pr-1 sm:pr-2 select-none"
       >
         <div className="flex items-center gap-1.5 w-full min-w-0 overflow-hidden">
           <Link
@@ -142,7 +142,7 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
       </div>
 
       {/* Center: Waveform scrubber */}
-      <div className="flex-1 min-w-0 px-1 sm:px-3">
+      <div className="flex-1 min-w-0 overflow-hidden px-1 sm:px-2.5">
         <WaveformScrubber
           waveform={soundEffect.waveform}
           progress={activeProgress}
@@ -152,7 +152,7 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
       </div>
 
       {/* Right: Actions with smooth transitions */}
-      <div className="flex items-center justify-end gap-1.5 sm:gap-2 flex-shrink-0">
+      <div className="flex items-center justify-end gap-1 sm:gap-1.5 flex-shrink-0">
         {/* Add To Collection Popover Button (with + icon) */}
         <AddToCollectionPopover soundEffect={soundEffect} />
 
@@ -160,7 +160,7 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
         <button
           type="button"
           onClick={() => toggleFavorite(soundEffect.id)}
-          className={`flex items-center gap-1.5 px-2 py-1 sm:py-1.5 rounded-md transition-all duration-200 hover:bg-white/5 active:scale-95 cursor-pointer group/fav ${
+          className={`flex-shrink-0 flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-md transition-all duration-200 hover:bg-white/5 active:scale-95 cursor-pointer group/fav ${
             isFav ? 'text-rose-500' : 'text-neutral-400 hover:text-rose-400'
           }`}
           title={
@@ -175,12 +175,12 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
           aria-label={isVi ? `Yêu thích ${soundEffect.title}` : `Favorite ${soundEffect.title}`}
         >
           <Heart
-            className={`w-4 h-4 transition-transform duration-200 group-hover/fav:scale-110 ${
+            className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-200 group-hover/fav:scale-110 flex-shrink-0 ${
               isFav ? 'fill-rose-500 text-rose-500 scale-105' : ''
             }`}
           />
           <span
-            className={`text-xs font-mono font-medium tabular-nums min-w-[24px] text-left leading-none ${
+            className={`text-[10px] sm:text-xs font-mono font-medium tabular-nums min-w-[18px] sm:min-w-[24px] text-left leading-none ${
               isFav ? 'text-rose-400 font-semibold' : 'text-neutral-400 group-hover/fav:text-neutral-200'
             }`}
           >
@@ -198,7 +198,7 @@ export const SoundEffectCard: React.FC<SoundEffectCardProps> = ({ soundEffect })
             }
             downloadTrack(soundEffect);
           }}
-          className={`p-1 sm:p-1.5 rounded-md transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
+          className={`flex-shrink-0 p-1 sm:p-1.5 rounded-md transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
             isDownloadLimitReached
               ? 'text-amber-400 hover:text-amber-300 hover:bg-amber-400/10'
               : 'text-red-400 hover:text-red-300 hover:bg-white/5'

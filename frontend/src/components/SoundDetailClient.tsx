@@ -236,13 +236,13 @@ export function SoundDetailClient({ soundId }: SoundDetailClientProps) {
           </div>
 
           {/* Featured Sound Player Card (matches screenshot) */}
-          <div className="bg-[#121212] border border-neutral-800 rounded-2xl p-4 sm:p-6 mb-10 shadow-2xl flex flex-col md:flex-row items-center gap-4 sm:gap-6">
+          <div className="bg-[#121212] border border-neutral-800 rounded-2xl p-4 sm:p-5 md:p-6 mb-8 sm:mb-10 shadow-2xl flex flex-col sm:flex-row items-center gap-3.5 sm:gap-4 md:gap-6">
             {/* Play Button & Time tracker */}
-            <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0 w-full md:w-auto">
+            <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0 w-full sm:w-auto justify-between sm:justify-start">
               <button
                 type="button"
                 onClick={() => togglePlay(soundEffect)}
-                className="w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 active:scale-95 text-white border border-neutral-700/60 transition-all cursor-pointer shadow-md"
+                className="w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 active:scale-95 text-white border border-neutral-700/60 transition-all cursor-pointer shadow-md flex-shrink-0"
                 aria-label={
                   isThisPlaying
                     ? `Pause ${soundEffect.title}`
@@ -264,7 +264,7 @@ export function SoundDetailClient({ soundId }: SoundDetailClientProps) {
             </div>
 
             {/* Central Waveform Scrubber */}
-            <div className="flex-1 w-full min-w-0 px-1 sm:px-2">
+            <div className="flex-1 w-full min-w-0 px-0 sm:px-2 overflow-hidden">
               <WaveformScrubber
                 waveform={soundEffect.waveform}
                 progress={progressPercent}
@@ -275,7 +275,7 @@ export function SoundDetailClient({ soundId }: SoundDetailClientProps) {
             </div>
 
             {/* Right Action Buttons */}
-            <div className="flex items-center justify-end gap-2.5 sm:gap-3 flex-shrink-0 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-neutral-800/80">
+            <div className="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-3 flex-shrink-0 w-full sm:w-auto pt-2.5 sm:pt-0 border-t sm:border-t-0 border-neutral-800/80">
               {/* Download Button (prominent white pill matching screenshot) */}
               <button
                 type="button"
@@ -286,7 +286,7 @@ export function SoundDetailClient({ soundId }: SoundDetailClientProps) {
                   }
                   downloadTrack(soundEffect);
                 }}
-                className="flex items-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold text-black bg-white hover:bg-neutral-200 active:scale-95 transition-all shadow-md cursor-pointer"
+                className="flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold text-black bg-white hover:bg-neutral-200 active:scale-95 transition-all shadow-md cursor-pointer flex-shrink-0"
               >
                 <Download className="w-4 h-4 text-black stroke-[2.2]" />
                 <span>{isVi ? 'Tải về' : 'Download'}</span>
@@ -296,7 +296,7 @@ export function SoundDetailClient({ soundId }: SoundDetailClientProps) {
               <button
                 type="button"
                 onClick={() => toggleFavorite(soundEffect.id)}
-                className={`flex items-center gap-1.5 p-2 rounded-full border transition-all duration-200 cursor-pointer active:scale-95 ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-full border transition-all duration-200 cursor-pointer active:scale-95 flex-shrink-0 ${
                   isFav
                     ? 'border-rose-500/40 bg-rose-500/10 text-rose-500'
                     : 'border-neutral-700/80 bg-neutral-900 text-neutral-400 hover:text-rose-400 hover:border-neutral-600'
@@ -334,7 +334,7 @@ export function SoundDetailClient({ soundId }: SoundDetailClientProps) {
                 {isVi ? 'Không có âm thanh tương tự.' : 'No similar sounds found.'}
               </p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-2.5 sm:gap-3.5">
                 {similarSounds.map((item) => (
                   <SoundEffectCard key={item.id} soundEffect={item} />
                 ))}
