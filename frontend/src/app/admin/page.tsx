@@ -13,7 +13,6 @@ import {
   Pause,
   Loader2,
   Search,
-  Download,
   Shield,
   Activity,
   FileAudio,
@@ -22,7 +21,6 @@ import {
   Plus,
   Edit2,
   FolderTree,
-  FolderPlus,
   Tag,
   Folder,
   X,
@@ -880,7 +878,26 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-neutral-800">
-                    {filteredCatalog.map((item) => {
+                    {isLoadingCatalog ? (
+                      <tr>
+                        <td colSpan={6} className="py-12 text-center text-neutral-400">
+                          <div className="flex flex-col items-center justify-center gap-2">
+                            <Loader2 className="w-6 h-6 animate-spin text-white" />
+                            <span className="text-xs">Đang tải danh sách âm thanh...</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : filteredCatalog.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="py-12 text-center text-neutral-400">
+                          <div className="flex flex-col items-center justify-center gap-1">
+                            <span className="text-sm font-semibold text-white">Không tìm thấy âm thanh nào</span>
+                            <span className="text-xs text-neutral-500">Hãy thử tìm kiếm với từ khóa khác</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredCatalog.map((item) => {
                       const isPlaying = playingCatalogId === item.id;
 
                       return (
@@ -929,7 +946,7 @@ export default function AdminPage() {
                           </td>
                         </tr>
                       );
-                    })}
+                    }))}
                   </tbody>
                 </table>
               </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   CheckCircle2,
@@ -54,9 +54,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCvc, setCardCvc] = useState('');
 
-  if (!isOpen) return null;
+  const [orderCode, setOrderCode] = useState('');
 
-  const orderCode = `MG${Math.floor(100000 + Math.random() * 900000)}`;
+  useEffect(() => {
+    if (isOpen) {
+      setOrderCode(`MG${Math.floor(100000 + Math.random() * 900000)}`);
+    }
+  }, [isOpen]);
   const transferContent = `MAGNIFIC ${plan.id.toUpperCase()} ${user ? user.id.slice(0, 5) : 'USER'}`;
 
   const handleCopy = (text: string, field: string) => {
@@ -77,6 +81,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       }, 1800);
     }, 1500);
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">

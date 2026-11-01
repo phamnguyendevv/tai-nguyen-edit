@@ -390,6 +390,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     audio.addEventListener('playing', handlePlaying);
     audio.addEventListener('pause', handlePause);
 
+    const currentBlobCache = blobCacheRef.current;
+
     return () => {
       audio.pause();
       audio.removeEventListener('timeupdate', handleTimeUpdate);
@@ -401,8 +403,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       audio.removeEventListener('waiting', handleWaiting);
       audio.removeEventListener('playing', handlePlaying);
       audio.removeEventListener('pause', handlePause);
-      blobCacheRef.current.forEach((url) => URL.revokeObjectURL(url));
-      blobCacheRef.current.clear();
+      currentBlobCache.forEach((url) => URL.revokeObjectURL(url));
+      currentBlobCache.clear();
     };
   }, []);
 

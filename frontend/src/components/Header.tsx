@@ -65,15 +65,6 @@ export const Header: React.FC<HeaderProps> = ({
   const themeContainerRef = useRef<HTMLDivElement>(null);
   const languageContainerRef = useRef<HTMLDivElement>(null);
 
-  // Load and apply theme from localStorage
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedTheme = (localStorage.getItem('magnific_theme') as ThemeMode) || 'Dark';
-      setTheme(savedTheme);
-      applyTheme(savedTheme);
-    }
-  }, []);
-
   const applyTheme = (t: ThemeMode) => {
     if (typeof window === 'undefined') return;
     let effectiveDark = true;
@@ -90,6 +81,15 @@ export const Header: React.FC<HeaderProps> = ({
       document.documentElement.classList.remove('dark');
     }
   };
+
+  // Load and apply theme from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = (localStorage.getItem('magnific_theme') as ThemeMode) || 'Dark';
+      setTheme(savedTheme);
+      applyTheme(savedTheme);
+    }
+  }, []);
 
   const handleThemeChange = (newTheme: ThemeMode) => {
     setTheme(newTheme);

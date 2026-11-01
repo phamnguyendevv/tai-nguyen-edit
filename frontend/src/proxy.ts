@@ -11,9 +11,8 @@ export function proxy(request: NextRequest) {
     const userAgent = request.headers.get('user-agent') || '';
     const playerHeader = request.headers.get('x-requested-with') || '';
     const secFetchDest = request.headers.get('sec-fetch-dest') || '';
-    const secFetchMode = request.headers.get('sec-fetch-mode') || '';
 
-    const allowedHosts = ['localhost:3000', '127.0.0.1:3000', 'localhost', '127.0.0.1'];
+    const allowedHosts = ['localhost', '127.0.0.1'];
     const hasValidOrigin = allowedHosts.some(
       (host) => referer.includes(host) || origin.includes(host)
     );
