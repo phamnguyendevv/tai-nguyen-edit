@@ -10,6 +10,8 @@ export const SEED_USERS: User[] = [
     avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&h=120&fit=crop&crop=face',
     status: 'ACTIVE',
     isPro: true,
+    downloadsCount: 342,
+    todayDownloads: 12,
     createdAt: '2026-01-01T00:00:00Z',
   },
   {
@@ -21,6 +23,8 @@ export const SEED_USERS: User[] = [
     avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&crop=face',
     status: 'ACTIVE',
     isPro: false,
+    downloadsCount: 48,
+    todayDownloads: 3,
     createdAt: '2026-01-15T00:00:00Z',
   },
   {
@@ -32,6 +36,8 @@ export const SEED_USERS: User[] = [
     avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop&crop=face',
     status: 'ACTIVE',
     isPro: true,
+    downloadsCount: 189,
+    todayDownloads: 15,
     createdAt: '2026-02-10T00:00:00Z',
   },
   {
@@ -43,6 +49,8 @@ export const SEED_USERS: User[] = [
     avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&h=120&fit=crop&crop=face',
     status: 'ACTIVE',
     isPro: false,
+    downloadsCount: 27,
+    todayDownloads: 1,
     createdAt: '2026-03-01T00:00:00Z',
   },
   {
@@ -54,6 +62,8 @@ export const SEED_USERS: User[] = [
     avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&h=120&fit=crop&crop=face',
     status: 'ACTIVE',
     isPro: true,
+    downloadsCount: 215,
+    todayDownloads: 8,
     createdAt: '2026-03-12T00:00:00Z',
   },
   {
@@ -65,6 +75,8 @@ export const SEED_USERS: User[] = [
     avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&h=120&fit=crop&crop=face',
     status: 'BANNED',
     isPro: false,
+    downloadsCount: 894,
+    todayDownloads: 0,
     createdAt: '2026-03-20T00:00:00Z',
   },
 ];

@@ -21,7 +21,7 @@ export class UserController {
    */
   static async createUser(req: AuthenticatedRequest, res: Response) {
     try {
-      const { email, password, name, role, status, isPro } = req.body;
+      const { email, password, name, role, status, isPro, downloadsCount, todayDownloads } = req.body;
 
       if (!email || !name) {
         return res.status(400).json({ error: 'Email and Name are required' });
@@ -34,6 +34,8 @@ export class UserController {
         role: role || 'USER',
         status: status || 'ACTIVE',
         isPro: !!isPro,
+        downloadsCount: downloadsCount !== undefined ? Number(downloadsCount) : 0,
+        todayDownloads: todayDownloads !== undefined ? Number(todayDownloads) : 0,
       });
 
       return res.status(201).json({
@@ -52,7 +54,7 @@ export class UserController {
   static async updateUser(req: AuthenticatedRequest, res: Response) {
     try {
       const id = String(req.params.id);
-      const { name, email, password, role, status, isPro } = req.body;
+      const { name, email, password, role, status, isPro, downloadsCount, todayDownloads } = req.body;
 
       const user = await UserRepository.updateUser(id, {
         name,
@@ -61,6 +63,8 @@ export class UserController {
         role,
         status,
         isPro,
+        downloadsCount: downloadsCount !== undefined ? Number(downloadsCount) : undefined,
+        todayDownloads: todayDownloads !== undefined ? Number(todayDownloads) : undefined,
       });
 
       if (!user) {

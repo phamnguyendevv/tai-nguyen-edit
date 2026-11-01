@@ -73,6 +73,8 @@ export class UserRepository {
       role: dto.role || 'USER',
       status: dto.status || 'ACTIVE',
       isPro: !!dto.isPro,
+      downloadsCount: dto.downloadsCount ?? 0,
+      todayDownloads: dto.todayDownloads ?? 0,
       avatarUrl:
         dto.avatarUrl ||
         `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&h=120&fit=crop&crop=face`,
@@ -104,6 +106,8 @@ export class UserRepository {
     if (dto.role !== undefined) target.role = dto.role;
     if (dto.status !== undefined) target.status = dto.status;
     if (dto.isPro !== undefined) target.isPro = dto.isPro;
+    if (dto.downloadsCount !== undefined) target.downloadsCount = dto.downloadsCount;
+    if (dto.todayDownloads !== undefined) target.todayDownloads = dto.todayDownloads;
     if (dto.password) target.password = dto.password;
     if (dto.avatarUrl) target.avatarUrl = dto.avatarUrl;
 

@@ -56,6 +56,7 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
   const [role, setRole] = useState<Role>('USER');
   const [status, setStatus] = useState<UserStatus>('ACTIVE');
   const [isPro, setIsPro] = useState(false);
+  const [downloadsCount, setDownloadsCount] = useState<number>(0);
 
   // Delete State
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
@@ -123,6 +124,7 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
     setRole('USER');
     setStatus('ACTIVE');
     setIsPro(false);
+    setDownloadsCount(0);
     setIsModalOpen(true);
   };
 
@@ -135,6 +137,7 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
     setRole(user.role);
     setStatus(user.status || 'ACTIVE');
     setIsPro(!!user.isPro);
+    setDownloadsCount(user.downloadsCount ?? 0);
     setIsModalOpen(true);
   };
 
@@ -145,13 +148,26 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
       return;
     }
 
-    const headers = ['ID', 'Họ Tên', 'Email', 'Vai Trò', 'Gói Cước', 'Trạng Thái', 'Phương Thức Đăng Nhập', 'Ngày Tạo'];
+    const headers = [
+      'ID',
+      'Họ Tên',
+      'Email',
+      'Vai Trò',
+      'Gói Cước',
+      'Tổng Lượt Tải SFX',
+      'Lượt Tải Hôm Nay',
+      'Trạng Thái',
+      'Phương Thức Đăng Nhập',
+      'Ngày Tạo',
+    ];
     const rows = filteredUsers.map((u) => [
       `"${u.id}"`,
       `"${u.name.replace(/"/g, '""')}"`,
       `"${u.email}"`,
       `"${u.role}"`,
       `"${u.isPro ? 'PRO VIP' : 'FREE'}"`,
+      `"${u.downloadsCount ?? 0}"`,
+      `"${u.todayDownloads ?? 0}"`,
       `"${u.status || 'ACTIVE'}"`,
       `"${u.provider || 'credentials'}"`,
       `"${u.createdAt ? new Date(u.createdAt).toISOString() : new Date().toISOString()}"`,
@@ -188,6 +204,7 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
           role,
           status,
           isPro,
+          downloadsCount,
         };
         if (password.trim()) {
           updatePayload.password = password.trim();
@@ -205,6 +222,7 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
           role,
           status,
           isPro,
+          downloadsCount,
         };
 
         const created = await ApiClient.createAdminUser(createPayload);
@@ -492,6 +510,7 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
                   <th className="py-3 px-4">Email & Đăng Nhập</th>
                   <th className="py-3 px-4">Vai Trò</th>
                   <th className="py-3 px-4">Gói Cước</th>
+                  <th className="py-3 px-4">Lượt Tải SFX</th>
                   <th className="py-3 px-4">Trạng Thái</th>
                   <th className="py-3 px-4">Ngày Tạo</th>
                   <th className="py-3 px-4 text-right">Thao Tác</th>
@@ -586,6 +605,26 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
                             <span>Miễn Phí</span>
                           </span>
                         )}
+                      </td>
+
+                      {/* Sound Effect Downloads */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5 font-medium">
+                          <Download className="w-3.5 h-3.5 text-neutral-400" />
+                          <span className="font-bold text-white text-xs tabular-nums">
+                            {u.downloadsCount ?? 0}
+                          </span>
+                          <span className="text-[11px] text-neutral-500">lượt</span>
+                        </div>
+                        <div className="text-[10px] text-neutral-400 mt-0.5">
+                          {u.isPro ? (
+                            <span className="text-amber-400/90 font-medium">Hôm nay: {u.todayDownloads ?? 0} (Không GH)</span>
+                          ) : (
+                            <span>
+                              Hôm nay: <strong className="text-neutral-300 font-mono">{u.todayDownloads ?? 0}</strong>/5
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Status */}
@@ -819,6 +858,25 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
                 </div>
               </div>
 
+              {/* Sound Effect Downloads Count */}
+              <div>
+                <label className="block text-neutral-400 font-medium mb-1 flex items-center justify-between">
+                  <span>Số Lượng Đã Tải SFX</span>
+                  <span className="text-[10px] text-neutral-500">Tổng số lượt tải xuống</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={downloadsCount}
+                    onChange={(e) => setDownloadsCount(parseInt(e.target.value) || 0)}
+                    className="w-full bg-[#1f1f1f] border border-[#333333] rounded-lg pl-9 pr-3.5 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-400 transition-colors"
+                  />
+                  <Download className="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              </div>
+
               {/* Pro VIP Privilege Checkbox */}
               <div className="pt-2">
                 <label className="flex items-center gap-3 p-3 rounded-xl bg-[#1b1b1b] border border-neutral-700/80 cursor-pointer hover:border-amber-500/50 transition-colors">
@@ -989,12 +1047,16 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
               </div>
 
               <div className="p-3 bg-[#131313] border border-neutral-800/90 rounded-lg">
-                <div className="text-[10px] text-neutral-500 uppercase tracking-wider mb-1 font-semibold">Hạn Mức Tải Xuống</div>
-                <div className="text-xs font-bold text-white">
+                <div className="text-[10px] text-neutral-500 uppercase tracking-wider mb-1 font-semibold flex items-center justify-between">
+                  <span>Lượt Tải Sound Effect</span>
+                  <span className="text-white font-bold">{viewingUser.downloadsCount ?? 0} lượt</span>
+                </div>
+                <div className="text-xs font-semibold text-white flex items-center gap-1.5">
+                  <Download className="w-3.5 h-3.5 text-neutral-400" />
                   {viewingUser.isPro ? (
                     <span className="text-amber-300">⚡ Không giới hạn (Pro VIP)</span>
                   ) : (
-                    <span className="text-neutral-300">5 lượt âm thanh / ngày</span>
+                    <span className="text-neutral-300">Hôm nay: {viewingUser.todayDownloads ?? 0}/5 lượt</span>
                   )}
                 </div>
               </div>

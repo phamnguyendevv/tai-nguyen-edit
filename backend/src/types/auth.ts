@@ -11,6 +11,8 @@ export interface User {
   provider?: string;
   status?: UserStatus;
   isPro?: boolean;
+  downloadsCount?: number;
+  todayDownloads?: number;
   createdAt: string;
 }
 
@@ -28,6 +30,8 @@ export interface CreateUserDTO {
   role?: Role;
   status?: UserStatus;
   isPro?: boolean;
+  downloadsCount?: number;
+  todayDownloads?: number;
   avatarUrl?: string;
 }
 
@@ -38,5 +42,7 @@ export interface UpdateUserDTO {
   role?: Role;
   status?: UserStatus;
   isPro?: boolean;
+  downloadsCount?: number;
+  todayDownloads?: number;
   avatarUrl?: string;
 }

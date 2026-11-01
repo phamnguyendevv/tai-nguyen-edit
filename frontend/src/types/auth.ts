@@ -20,6 +20,8 @@ export interface User {
   provider?: string;
   status?: UserStatus;
   isPro?: boolean;
+  downloadsCount?: number;
+  todayDownloads?: number;
   createdAt?: string;
   subscription?: Subscription | null;
 }
@@ -37,6 +39,8 @@ export interface CreateUserData {
   role?: Role;
   status?: UserStatus;
   isPro?: boolean;
+  downloadsCount?: number;
+  todayDownloads?: number;
   avatarUrl?: string;
 }
 
@@ -47,5 +51,7 @@ export interface UpdateUserData {
   role?: Role;
   status?: UserStatus;
   isPro?: boolean;
+  downloadsCount?: number;
+  todayDownloads?: number;
   avatarUrl?: string;
 }
