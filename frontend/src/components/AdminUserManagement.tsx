@@ -22,6 +22,10 @@ import {
   UserCheck,
   UserX,
   Key,
+  Eye,
+  Download,
+  Calendar,
+  ShieldCheck,
 } from 'lucide-react';
 import { User, Role, UserStatus, CreateUserData, UpdateUserData } from '@/types/auth';
 import { ApiClient } from '@/lib/api-client';
@@ -42,6 +46,7 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [viewingUser, setViewingUser] = useState<User | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   // Form Fields
@@ -131,6 +136,38 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
     setStatus(user.status || 'ACTIVE');
     setIsPro(!!user.isPro);
     setIsModalOpen(true);
+  };
+
+  // Export Users to CSV
+  const handleExportCSV = () => {
+    if (filteredUsers.length === 0) {
+      showToast('error', 'Không có dữ liệu người dùng để xuất CSV');
+      return;
+    }
+
+    const headers = ['ID', 'Họ Tên', 'Email', 'Vai Trò', 'Gói Cước', 'Trạng Thái', 'Phương Thức Đăng Nhập', 'Ngày Tạo'];
+    const rows = filteredUsers.map((u) => [
+      `"${u.id}"`,
+      `"${u.name.replace(/"/g, '""')}"`,
+      `"${u.email}"`,
+      `"${u.role}"`,
+      `"${u.isPro ? 'PRO VIP' : 'FREE'}"`,
+      `"${u.status || 'ACTIVE'}"`,
+      `"${u.provider || 'credentials'}"`,
+      `"${u.createdAt ? new Date(u.createdAt).toISOString() : new Date().toISOString()}"`,
+    ]);
+
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `danh-sach-nguoi-dung-magnific-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast('success', `Đã xuất ${filteredUsers.length} tài khoản ra file CSV`);
   };
 
   // Submit Create or Edit Form
@@ -290,6 +327,17 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
             title="Làm mới danh sách"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleExportCSV}
+            disabled={isLoading || filteredUsers.length === 0}
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-700 hover:border-neutral-500 text-neutral-300 hover:text-white text-xs font-semibold transition-all cursor-pointer shadow-sm disabled:opacity-40"
+            title="Xuất danh sách người dùng ra file CSV"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Xuất CSV</span>
           </button>
 
           <button
@@ -605,6 +653,16 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
                             )}
                           </button>
 
+                          {/* View Details */}
+                          <button
+                            type="button"
+                            onClick={() => setViewingUser(u)}
+                            className="p-1.5 rounded-lg bg-neutral-900 border border-neutral-700/80 text-neutral-400 hover:text-white hover:border-neutral-500 transition-all cursor-pointer"
+                            title="Xem chi tiết tài khoản"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+
                           {/* Edit Details */}
                           <button
                             type="button"
@@ -850,6 +908,169 @@ export function AdminUserManagement({ currentUser, showToast }: AdminUserManagem
               >
                 {isDeleting ? 'Đang xóa...' : 'Xác Nhận Xóa'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL: VIEW USER DETAILS ================= */}
+      {viewingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={() => setViewingUser(null)}
+          />
+          <div className="relative w-full max-w-lg bg-[#161616] border border-neutral-800 rounded-2xl shadow-2xl p-6 z-10 text-white animate-in fade-in zoom-in-95 duration-150">
+            {/* Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-neutral-800 mb-5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-neutral-800 border border-neutral-700 flex items-center justify-center text-white">
+                  <Eye className="w-4 h-4 text-neutral-300" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Hồ Sơ Chi Tiết Người Dùng</h3>
+                  <p className="text-[11px] text-neutral-400">Xem thông tin tài khoản, quyền hạn & hạn mức</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewingUser(null)}
+                className="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Profile Header Card */}
+            <div className="bg-[#1c1c1c] border border-neutral-800 rounded-xl p-4 flex items-center gap-4 mb-5">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-500/30 to-violet-500/30 border border-neutral-700 flex items-center justify-center text-white font-black text-lg overflow-hidden flex-shrink-0">
+                {viewingUser.avatarUrl ? (
+                  <img src={viewingUser.avatarUrl} alt={viewingUser.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span>{viewingUser.name.charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="text-base font-bold text-white truncate">{viewingUser.name}</h4>
+                  {viewingUser.role === 'ADMIN' && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950/70 text-amber-300 border border-amber-800/80">
+                      <Crown className="w-2.5 h-2.5" />
+                      ADMIN
+                    </span>
+                  )}
+                  {viewingUser.isPro && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                      <Sparkles className="w-2.5 h-2.5" />
+                      PRO VIP
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs text-neutral-400 truncate mt-0.5 font-mono">{viewingUser.email}</div>
+                <div className="text-[10px] text-neutral-500 font-mono mt-1">ID: {viewingUser.id}</div>
+              </div>
+            </div>
+
+            {/* Detail Grid */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="p-3 bg-[#131313] border border-neutral-800/90 rounded-lg">
+                <div className="text-[10px] text-neutral-500 uppercase tracking-wider mb-1 font-semibold">Trạng Thái</div>
+                <div>
+                  {viewingUser.status === 'BANNED' ? (
+                    <span className="inline-flex items-center gap-1 text-xs font-bold text-rose-400">
+                      <Lock className="w-3.5 h-3.5" /> Đã Bị Khóa
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-400">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Đang Hoạt Động
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="p-3 bg-[#131313] border border-neutral-800/90 rounded-lg">
+                <div className="text-[10px] text-neutral-500 uppercase tracking-wider mb-1 font-semibold">Hạn Mức Tải Xuống</div>
+                <div className="text-xs font-bold text-white">
+                  {viewingUser.isPro ? (
+                    <span className="text-amber-300">⚡ Không giới hạn (Pro VIP)</span>
+                  ) : (
+                    <span className="text-neutral-300">5 lượt âm thanh / ngày</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="p-3 bg-[#131313] border border-neutral-800/90 rounded-lg">
+                <div className="text-[10px] text-neutral-500 uppercase tracking-wider mb-1 font-semibold">Đăng Nhập Qua</div>
+                <div className="text-xs font-medium text-neutral-300">
+                  {viewingUser.provider === 'google' ? '🌐 Google OAuth 2.0' : '🔑 Mật khẩu nội bộ'}
+                </div>
+              </div>
+
+              <div className="p-3 bg-[#131313] border border-neutral-800/90 rounded-lg">
+                <div className="text-[10px] text-neutral-500 uppercase tracking-wider mb-1 font-semibold">Ngày Tạo Tài Khoản</div>
+                <div className="text-xs font-medium text-neutral-300 font-mono">
+                  {formatDate(viewingUser.createdAt)}
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions Footer */}
+            <div className="flex items-center justify-between pt-4 border-t border-neutral-800">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const u = viewingUser;
+                    setViewingUser(null);
+                    handleTogglePro(u);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+                    viewingUser.isPro
+                      ? 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:text-white'
+                      : 'bg-amber-500/20 border-amber-500/40 text-amber-300 hover:bg-amber-500/30'
+                  }`}
+                >
+                  {viewingUser.isPro ? 'Hạ cấp Free' : '⭐ Nâng Pro VIP'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const u = viewingUser;
+                    setViewingUser(null);
+                    handleToggleStatus(u);
+                  }}
+                  disabled={viewingUser.id === currentUser?.id || viewingUser.id === 'user-admin-01'}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${
+                    viewingUser.status === 'BANNED'
+                      ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/30'
+                      : 'bg-rose-500/20 border-rose-500/40 text-rose-300 hover:bg-rose-500/30'
+                  }`}
+                >
+                  {viewingUser.status === 'BANNED' ? 'Mở Khóa' : 'Khóa Tài Khoản'}
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const u = viewingUser;
+                    setViewingUser(null);
+                    handleOpenEdit(u);
+                  }}
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-neutral-800 hover:bg-neutral-700 text-white transition-colors cursor-pointer"
+                >
+                  Chỉnh Sửa
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewingUser(null)}
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white text-black hover:bg-neutral-200 transition-colors cursor-pointer"
+                >
+                  Đóng
+                </button>
+              </div>
             </div>
           </div>
         </div>

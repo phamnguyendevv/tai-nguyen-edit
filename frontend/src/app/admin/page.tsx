@@ -29,6 +29,7 @@ import {
   AlertTriangle,
   Users,
   TrendingUp,
+  LayoutDashboard,
 } from 'lucide-react';
 import { ApiClient } from '@/lib/api-client';
 import { analyzeAudioFile } from '@/lib/audio/waveform-extractor';
@@ -39,11 +40,12 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { LoginModal } from '@/components/LoginModal';
 import { AdminUserManagement } from '@/components/AdminUserManagement';
 import { AdminTrafficAnalytics } from '@/components/AdminTrafficAnalytics';
+import { AdminDashboardOverview } from '@/components/AdminDashboardOverview';
 
 export default function AdminPage() {
   const { user, isAdmin, isAuthenticated, loginWithPreset } = useAuth();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'upload' | 'catalog' | 'categories' | 'users' | 'analytics'>('upload');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'upload' | 'catalog' | 'categories' | 'users' | 'analytics'>('dashboard');
   const [categories, setCategories] = useState<Category[]>(CATEGORIES_DATA);
   const [soundEffects, setSoundEffects] = useState<SoundEffect[]>([]);
   const [isLoadingCatalog, setIsLoadingCatalog] = useState(false);
@@ -531,15 +533,28 @@ export default function AdminPage() {
         <div className="flex items-center gap-2 border-b border-neutral-800 pb-3 mb-6 overflow-x-auto">
           <button
             type="button"
-            onClick={() => setActiveTab('upload')}
+            onClick={() => setActiveTab('dashboard')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
-              activeTab === 'upload'
+              activeTab === 'dashboard'
                 ? 'bg-neutral-800 text-white shadow-sm'
                 : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
             }`}
           >
-            <UploadCloud className="w-4 h-4" />
-            <span>Upload New Sound Effect</span>
+            <LayoutDashboard className="w-4 h-4 text-amber-400" />
+            <span>Dashboard Tổng Quan</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('users')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+              activeTab === 'users'
+                ? 'bg-neutral-800 text-white shadow-sm'
+                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+            }`}
+          >
+            <Users className="w-4 h-4 text-sky-400" />
+            <span>Quản Lý Tài Khoản</span>
           </button>
 
           <button
@@ -552,7 +567,7 @@ export default function AdminPage() {
             }`}
           >
             <Layers className="w-4 h-4" />
-            <span>Sound Effects Catalog ({soundEffects.length})</span>
+            <span>Kho Âm Thanh ({soundEffects.length})</span>
           </button>
 
           <button
@@ -565,20 +580,7 @@ export default function AdminPage() {
             }`}
           >
             <FolderTree className="w-4 h-4" />
-            <span>Quản Lý Danh Mục & Subcategory ({categories.filter((c) => c.slug !== 'all').length})</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('users')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
-              activeTab === 'users'
-                ? 'bg-neutral-800 text-white shadow-sm'
-                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>Quản Lý Tài Khoản</span>
+            <span>Quản Lý Danh Mục ({categories.filter((c) => c.slug !== 'all').length})</span>
           </button>
 
           <button
@@ -593,7 +595,29 @@ export default function AdminPage() {
             <TrendingUp className="w-4 h-4 text-emerald-400" />
             <span>Thống Kê Lượt Truy Cập</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('upload')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+              activeTab === 'upload'
+                ? 'bg-neutral-800 text-white shadow-sm'
+                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+            }`}
+          >
+            <UploadCloud className="w-4 h-4" />
+            <span>Tải Lên Âm Thanh Mới</span>
+          </button>
         </div>
+
+        {/* Tab 0: Dashboard Overview */}
+        {activeTab === 'dashboard' && (
+          <AdminDashboardOverview
+            soundEffectsCount={soundEffects.length}
+            categoriesCount={categories.filter((c) => c.slug !== 'all').length}
+            onNavigateTab={(tab) => setActiveTab(tab)}
+          />
+        )}
 
         {/* Tab 1: Upload Studio */}
         {activeTab === 'upload' && (

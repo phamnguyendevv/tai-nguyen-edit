@@ -51,7 +51,7 @@ export class UserController {
    */
   static async updateUser(req: AuthenticatedRequest, res: Response) {
     try {
-      const { id } = req.params;
+      const id = String(req.params.id);
       const { name, email, password, role, status, isPro } = req.body;
 
       const user = await UserRepository.updateUser(id, {
@@ -82,7 +82,7 @@ export class UserController {
    */
   static async deleteUser(req: AuthenticatedRequest, res: Response) {
     try {
-      const { id } = req.params;
+      const id = String(req.params.id);
 
       // Prevent deleting self if same id
       if (req.user?.id === id) {
@@ -109,7 +109,7 @@ export class UserController {
    */
   static async toggleStatus(req: AuthenticatedRequest, res: Response) {
     try {
-      const { id } = req.params;
+      const id = String(req.params.id);
 
       if (req.user?.id === id) {
         return res.status(400).json({ error: 'Không thể tự khóa tài khoản của chính mình' });
@@ -135,7 +135,7 @@ export class UserController {
    */
   static async togglePro(req: AuthenticatedRequest, res: Response) {
     try {
-      const { id } = req.params;
+      const id = String(req.params.id);
 
       const user = await UserRepository.togglePro(id);
       if (!user) {
