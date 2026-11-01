@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   Play,
   Pause,
   Download,
-  Sparkles,
   Heart,
   ChevronRight,
   ChevronDown,
@@ -35,7 +34,6 @@ export function SoundDetailClient({ soundId }: SoundDetailClientProps) {
   const { language, t } = useLanguage();
   const isVi = language === 'vi';
   const [isSidebarOpenMobile, setIsSidebarOpenMobile] = useState(false);
-  const similarSectionRef = useRef<HTMLDivElement>(null);
 
   const {
     currentTrack,
@@ -138,13 +136,6 @@ export function SoundDetailClient({ soundId }: SoundDetailClientProps) {
       : Math.max(12, Math.round(soundEffect.downloadsCount * 0.18))
     : 0;
   const currentFavoritesCount = baseFavorites + (isFav ? 1 : 0);
-
-  // Scroll to similar sounds section on clicking Generate Similar
-  const handleGenerateSimilar = () => {
-    if (similarSectionRef.current) {
-      similarSectionRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
 
   if (!soundEffect) {
     return (
@@ -285,16 +276,6 @@ export function SoundDetailClient({ soundId }: SoundDetailClientProps) {
 
             {/* Right Action Buttons */}
             <div className="flex items-center justify-end gap-2.5 sm:gap-3 flex-shrink-0 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-neutral-800/80">
-              {/* Generate Similar Button */}
-              <button
-                type="button"
-                onClick={handleGenerateSimilar}
-                className="flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold text-white bg-neutral-900 border border-neutral-700/80 hover:bg-neutral-800 hover:border-neutral-500 active:scale-95 transition-all cursor-pointer shadow-sm"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-fuchsia-400" />
-                <span>{isVi ? 'Tạo tương tự' : 'Generate Similar'}</span>
-              </button>
-
               {/* Download Button (prominent white pill matching screenshot) */}
               <button
                 type="button"
@@ -343,7 +324,7 @@ export function SoundDetailClient({ soundId }: SoundDetailClientProps) {
           </div>
 
           {/* Similar Sounds Section (2 columns grid matching screenshot) */}
-          <div ref={similarSectionRef} className="pt-2">
+          <div className="pt-2">
             <h2 className="text-lg sm:text-xl font-bold text-white mb-4 flex items-center gap-2">
               <span>{isVi ? 'Âm thanh tương tự' : 'Similar Sounds'}</span>
             </h2>
