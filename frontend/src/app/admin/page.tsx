@@ -27,6 +27,7 @@ import {
   Folder,
   X,
   AlertTriangle,
+  Users,
 } from 'lucide-react';
 import { ApiClient } from '@/lib/api-client';
 import { analyzeAudioFile } from '@/lib/audio/waveform-extractor';
@@ -35,11 +36,12 @@ import { SoundEffect, Category, CategorySlug, SubCategory } from '@/types/sfx';
 import { CATEGORIES_DATA } from '@/lib/data/categories';
 import { useAuth } from '@/lib/auth/auth-context';
 import { LoginModal } from '@/components/LoginModal';
+import { AdminUserManagement } from '@/components/AdminUserManagement';
 
 export default function AdminPage() {
   const { user, isAdmin, isAuthenticated, loginWithPreset } = useAuth();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'upload' | 'catalog' | 'categories'>('upload');
+  const [activeTab, setActiveTab] = useState<'upload' | 'catalog' | 'categories' | 'users'>('upload');
   const [categories, setCategories] = useState<Category[]>(CATEGORIES_DATA);
   const [soundEffects, setSoundEffects] = useState<SoundEffect[]>([]);
   const [isLoadingCatalog, setIsLoadingCatalog] = useState(false);
@@ -524,11 +526,11 @@ export default function AdminPage() {
       {/* Main Content */}
       <div className="max-w-6xl w-full mx-auto px-4 py-8 flex-1 flex flex-col">
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-neutral-800 pb-3 mb-6">
+        <div className="flex items-center gap-2 border-b border-neutral-800 pb-3 mb-6 overflow-x-auto">
           <button
             type="button"
             onClick={() => setActiveTab('upload')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'upload'
                 ? 'bg-neutral-800 text-white shadow-sm'
                 : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
@@ -541,7 +543,7 @@ export default function AdminPage() {
           <button
             type="button"
             onClick={() => setActiveTab('catalog')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'catalog'
                 ? 'bg-neutral-800 text-white shadow-sm'
                 : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
@@ -554,7 +556,7 @@ export default function AdminPage() {
           <button
             type="button"
             onClick={() => setActiveTab('categories')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'categories'
                 ? 'bg-neutral-800 text-white shadow-sm'
                 : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
@@ -562,6 +564,19 @@ export default function AdminPage() {
           >
             <FolderTree className="w-4 h-4" />
             <span>Quản Lý Danh Mục & Subcategory ({categories.filter((c) => c.slug !== 'all').length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('users')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+              activeTab === 'users'
+                ? 'bg-neutral-800 text-white shadow-sm'
+                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            <span>Quản Lý Tài Khoản</span>
           </button>
         </div>
 
@@ -1097,6 +1112,11 @@ export default function AdminPage() {
                 })}
             </div>
           </div>
+        )}
+
+        {/* Tab 4: Account / User Management */}
+        {activeTab === 'users' && (
+          <AdminUserManagement currentUser={user} showToast={showToast} />
         )}
       </div>
 

@@ -1,4 +1,5 @@
 export type Role = 'ADMIN' | 'USER';
+export type UserStatus = 'ACTIVE' | 'BANNED';
 
 export interface Subscription {
   planId: '1m' | '3m' | '6m' | '1y';
@@ -17,6 +18,8 @@ export interface User {
   role: Role;
   avatarUrl?: string;
   provider?: string;
+  status?: UserStatus;
+  isPro?: boolean;
   createdAt?: string;
   subscription?: Subscription | null;
 }
@@ -27,3 +30,22 @@ export interface AuthResponse {
   message?: string;
 }
 
+export interface CreateUserData {
+  email: string;
+  name: string;
+  password?: string;
+  role?: Role;
+  status?: UserStatus;
+  isPro?: boolean;
+  avatarUrl?: string;
+}
+
+export interface UpdateUserData {
+  name?: string;
+  email?: string;
+  password?: string;
+  role?: Role;
+  status?: UserStatus;
+  isPro?: boolean;
+  avatarUrl?: string;
+}

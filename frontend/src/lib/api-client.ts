@@ -1,5 +1,5 @@
 import { FilterParams, PaginatedSoundEffectsResponse, Category, SoundEffect } from '@/types/sfx';
-import { AuthResponse, User } from '@/types/auth';
+import { AuthResponse, User, CreateUserData, UpdateUserData } from '@/types/auth';
 
 const BACKEND_BASE_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
@@ -268,5 +268,127 @@ export class ApiClient {
       },
     });
     return res.ok;
+  }
+
+  /**
+   * Get all users (Admin only)
+   */
+  static async getAdminUsers(): Promise<User[]> {
+    const res = await fetch(`${BACKEND_BASE_URL}/api/admin/users`, {
+      headers: {
+        ...this.getAuthHeader(),
+      },
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `Failed to fetch users: ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    return data.users || [];
+  }
+
+  /**
+   * Create user (Admin only)
+   */
+  static async createAdminUser(data: CreateUserData): Promise<User> {
+    const res = await fetch(`${BACKEND_BASE_URL}/api/admin/users`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to create user');
+    }
+
+    const json = await res.json();
+    return json.user;
+  }
+
+  /**
+   * Update user (Admin only)
+   */
+  static async updateAdminUser(id: string, data: UpdateUserData): Promise<User> {
+    const res = await fetch(`${BACKEND_BASE_URL}/api/admin/users/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeader(),
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to update user');
+    }
+
+    const json = await res.json();
+    return json.user;
+  }
+
+  /**
+   * Delete user (Admin only)
+   */
+  static async deleteAdminUser(id: string): Promise<boolean> {
+    const res = await fetch(`${BACKEND_BASE_URL}/api/admin/users/${id}`, {
+      method: 'DELETE',
+      headers: {
+        ...this.getAuthHeader(),
+      },
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to delete user');
+    }
+
+    return true;
+  }
+
+  /**
+   * Toggle user status (ACTIVE / BANNED)
+   */
+  static async toggleUserStatus(id: string): Promise<User> {
+    const res = await fetch(`${BACKEND_BASE_URL}/api/admin/users/${id}/toggle-status`, {
+      method: 'PATCH',
+      headers: {
+        ...this.getAuthHeader(),
+      },
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to toggle user status');
+    }
+
+    const json = await res.json();
+    return json.user;
+  }
+
+  /**
+   * Toggle user Pro membership
+   */
+  static async toggleUserPro(id: string): Promise<User> {
+    const res = await fetch(`${BACKEND_BASE_URL}/api/admin/users/${id}/toggle-pro`, {
+      method: 'PATCH',
+      headers: {
+        ...this.getAuthHeader(),
+      },
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to toggle user Pro status');
+    }
+
+    const json = await res.json();
+    return json.user;
   }
 }
