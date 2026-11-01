@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import sfxRoutes from './routes/sfx-routes.js';
 import authRoutes from './routes/auth-routes.js';
 import userRoutes from './routes/user-routes.js';
+import analyticsRoutes from './routes/analytics-routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -62,6 +63,7 @@ app.use(express.static(publicAudioDir));
 app.use('/api', sfxRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin/users', userRoutes);
+app.use('/api', analyticsRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

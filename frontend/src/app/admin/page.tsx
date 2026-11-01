@@ -28,6 +28,7 @@ import {
   X,
   AlertTriangle,
   Users,
+  TrendingUp,
 } from 'lucide-react';
 import { ApiClient } from '@/lib/api-client';
 import { analyzeAudioFile } from '@/lib/audio/waveform-extractor';
@@ -37,11 +38,12 @@ import { CATEGORIES_DATA } from '@/lib/data/categories';
 import { useAuth } from '@/lib/auth/auth-context';
 import { LoginModal } from '@/components/LoginModal';
 import { AdminUserManagement } from '@/components/AdminUserManagement';
+import { AdminTrafficAnalytics } from '@/components/AdminTrafficAnalytics';
 
 export default function AdminPage() {
   const { user, isAdmin, isAuthenticated, loginWithPreset } = useAuth();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'upload' | 'catalog' | 'categories' | 'users'>('upload');
+  const [activeTab, setActiveTab] = useState<'upload' | 'catalog' | 'categories' | 'users' | 'analytics'>('upload');
   const [categories, setCategories] = useState<Category[]>(CATEGORIES_DATA);
   const [soundEffects, setSoundEffects] = useState<SoundEffect[]>([]);
   const [isLoadingCatalog, setIsLoadingCatalog] = useState(false);
@@ -577,6 +579,19 @@ export default function AdminPage() {
           >
             <Users className="w-4 h-4" />
             <span>Quản Lý Tài Khoản</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('analytics')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+              activeTab === 'analytics'
+                ? 'bg-neutral-800 text-white shadow-sm'
+                : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+            }`}
+          >
+            <TrendingUp className="w-4 h-4 text-emerald-400" />
+            <span>Thống Kê Lượt Truy Cập</span>
           </button>
         </div>
 
@@ -1117,6 +1132,11 @@ export default function AdminPage() {
         {/* Tab 4: Account / User Management */}
         {activeTab === 'users' && (
           <AdminUserManagement currentUser={user} showToast={showToast} />
+        )}
+
+        {/* Tab 5: Visitor & Traffic Analytics */}
+        {activeTab === 'analytics' && (
+          <AdminTrafficAnalytics showToast={showToast} />
         )}
       </div>
 

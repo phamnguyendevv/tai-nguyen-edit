@@ -1,5 +1,6 @@
 import { FilterParams, PaginatedSoundEffectsResponse, Category, SoundEffect } from '@/types/sfx';
 import { AuthResponse, User, CreateUserData, UpdateUserData } from '@/types/auth';
+import { AnalyticsSummary } from '@/types/analytics';
 
 const BACKEND_BASE_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
@@ -390,5 +391,42 @@ export class ApiClient {
 
     const json = await res.json();
     return json.user;
+  }
+
+  /**
+   * Get traffic analytics summary (Admin only)
+   */
+  static async getAdminAnalytics(range: 'today' | '7d' | '30d' | 'all' = '7d'): Promise<AnalyticsSummary> {
+    const res = await fetch(`${BACKEND_BASE_URL}/api/admin/analytics?range=${range}`, {
+      headers: {
+        ...this.getAuthHeader(),
+      },
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `Failed to fetch analytics: ${res.statusText}`);
+    }
+
+    return await res.json();
+  }
+
+  /**
+   * Track client pageview
+   */
+  static async trackPageView(path: string, title?: string): Promise<void> {
+    try {
+      await fetch(`${BACKEND_BASE_URL}/api/analytics/track`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          path,
+          title,
+          referrer: typeof document !== 'undefined' ? document.referrer : '',
+        }),
+      });
+    } catch {
+      // Ignore background tracking failure
+    }
   }
 }
