@@ -87,7 +87,7 @@ export class SoundEffectController {
 
   static async createSoundEffect(req: Request, res: Response) {
     try {
-      const { title, category, subcategory, duration, waveform, tags, audioUrl, audioBase64, format } = req.body;
+      const { title, category, subcategory, duration, waveform, tags, audioUrl, audioBase64, format, license } = req.body;
 
       if (!title || !duration || !waveform) {
         return res.status(400).json({ error: 'Missing required fields: title, duration, waveform' });
@@ -105,7 +105,12 @@ export class SoundEffectController {
           const path = await import('path');
           const ext = format?.toLowerCase().includes('mp3') ? 'mp3' : 'wav';
           const filename = `${slug}.${ext}`;
-          const savePath = path.join(process.cwd(), 'public', 'audio', 'sfx', filename);
+          
+          const saveDir = path.resolve(process.cwd(), 'public', 'audio', 'sfx');
+          if (!fs.existsSync(saveDir)) {
+            fs.mkdirSync(saveDir, { recursive: true });
+          }
+          const savePath = path.join(saveDir, filename);
           const buf = Buffer.from(audioBase64.split(',')[1] || audioBase64, 'base64');
           fs.writeFileSync(savePath, buf);
           finalAudioUrl = `/audio/sfx/${filename}`;
@@ -129,7 +134,7 @@ export class SoundEffectController {
         createdAt: new Date().toISOString(),
         fileSizeBytes: 250000,
         format: format || 'Audio WAV/MP3',
-        license: 'Custom Upload',
+        license: license || 'Royalty-Free / CC0',
       };
 
       await SoundEffectRepository.create(newSfx);

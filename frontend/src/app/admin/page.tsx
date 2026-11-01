@@ -337,7 +337,7 @@ export default function AdminPage() {
       };
 
       const newSfx = await ApiClient.createSoundEffect(payload);
-      showToast('success', `Published "${newSfx.title}" to library!`);
+      showToast('success', `Đã xuất bản "${newSfx.title}" vào thư viện âm thanh thành công!`);
 
       // Reset form
       setFile(null);
@@ -349,9 +349,9 @@ export default function AdminPage() {
       // Reload catalog
       await loadCatalog();
       setActiveTab('catalog');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Publish error:', err);
-      showToast('error', 'Failed to publish sound effect to backend.');
+      showToast('error', err.message || 'Lỗi khi tải âm thanh lên máy chủ backend.');
     } finally {
       setIsPublishing(false);
     }
